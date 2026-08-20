@@ -1,0 +1,105 @@
+---
+name: fedora-windows-look
+description: "Make Fedora look and feel like Windows and run faster. Use when the user asks to speed up Fedora/GNOME (slow boot, which services to disable, custom kernel), set warm display colors like Windows (cold/washed-out screen, gamma, night light), apply a Windows 11 look (dark theme, Segoe UI, cursors, sounds, taskbar), set up terminals like Windows Terminal (Alacritty/WezTerm/Konsole, Cascadia Mono), tune zram swap, or format/mount disks. Covers: audit -> speedup -> warm colors -> windows-look -> terminals -> zram -> disks."
+---
+
+# Fedora → Windows Look & Performance
+
+Пакет инструкций, проверенных живьём на Fedora (GNOME + Wayland): ускорение
+системы, тёплые цвета дисплея как на Windows, полный Windows-лук (тёмная тема,
+шрифты, курсоры, звуки, панель), терминалы как Windows Terminal, zram-своп,
+форматирование дисков. Каждый шаг обратим, каждая правка — с командой отката.
+
+## Когда использовать
+
+| Запрос пользователя | Раздел |
+|---|---|
+| «тормозит», «медленная загрузка», «какие службы отключить», «стоит ли кастомное ядро» | `references/01-speedup.md` |
+| «холодные цвета», «блекло», «настрой гамму», «сделай тёплый как на винде» | `references/02-warm-colors.md` |
+| «сделай как на винде»: тёмная тема, шрифты Segoe UI, курсоры, звуки, панель, пуск | `references/03-windows-look.md` |
+| «поставь терминал как Windows Terminal», konsole тёмная тема, Cascadia Mono | `references/04-terminals.md` |
+| «настрой zram/своп», «сжатый своп» | `references/05-zram.md` |
+| «отформатируй диск», «не пишет на диск», разметка, fstab | `references/06-disks.md` |
+
+**Когда НЕ использовать:** серверы (там свои правила — не трогать
+NetworkManager-wait-online); настройка Firefox (отдельный скилл);
+ускорение через zram/диски — по ссылкам выше.
+
+## Главное правило
+
+**Сначала аудит (read-only), потом правки, потом перезагрузка — владельцем.**
+Ничего не менять до того, как собраны факты. Каждую правку показывать
+владельцу с ценой и командой отката. Необратимые операции (форматирование
+дисков) — только после явного подтверждения.
+
+## Быстрый старт
+
+```bash
+# 1. Аудит системы (ничего не меняет)
+bash scripts/audit.sh
+
+# 2. Ускорение — references/01-speedup.md (шаги 1-3, ядро — опционально)
+
+# 3. Тёплые цвета — references/02-warm-colors.md
+#    главный фикс «холодного» экрана: пресет монитора 7500K → 6500K (DDC)
+
+# 4. Windows-лук — references/03-windows-look.md
+
+# 5. Терминалы — references/04-terminals.md
+
+# 6. zram — scripts/apply-zram.sh [--dry-run]   (см. references/05-zram.md)
+bash scripts/apply-zram.sh --dry-run   # посмотреть, что будет
+bash scripts/apply-zram.sh             # применить (sudo, размер = RAM/2)
+```
+
+## Важность каждого раздела (коротко)
+
+1. **Ускорение** — загрузка 45с → ~13с и −300–500МБ RAM бесплатно: boot-время
+   это ожидания (мёртвые UUID, wait-online, plymouth), а RAM едят краш-репортеры
+   и модем-мониторы. Кастомное ядро — последний шаг, эффект единицы-десятки %.
+2. **Тёплые цвета** — мониторы по умолчанию 7500K (холодно/дёшево); 6500K пресет
+   + VCGT-гамма + gamma 0.95 = «как на винде». Это первое впечатление от системы.
+3. **Windows-лук** — тёмная тема + Segoe UI + курсоры + звуки + панель Dash to
+   Panel + ArcMenu = привычный вид, мелкие настройки, огромная субъективная разница.
+4. **Терминалы** — Windows Terminal Dark на Alacritty/WezTerm/Konsole + Cascadia
+   Mono; тёмно-серый #0C0C0C вместо чистого чёрного (халация, астигматизм).
+5. **zram** — сжатый своп в RAM в 10+ раз быстрее диска: swappiness 150 +
+   page-cluster 0 + zstd = свободная RAM под кэш.
+6. **Диски** — большинство «не пишет» лечится без переформатирования
+   (ntfsfix dirty flag); fstab с nofail не вешает загрузку при отсутствии диска.
+
+## Структура
+
+```
+fedora-windows-look/
+├── SKILL.md                  # этот файл
+├── references/
+│   ├── 01-speedup.md         # аудит → службы → загрузка → GNOME → ядро
+│   ├── 02-warm-colors.md     # тёплые цвета: Night Light, VCGT, DDC
+│   ├── 03-windows-look.md    # тёмная тема, шрифты, иконки, курсоры, звуки, расширения
+│   ├── 04-terminals.md       # Alacritty, WezTerm, Konsole + Cascadia Mono
+│   ├── 05-zram.md            # zram-своп (универсально)
+│   └── 06-disks.md           # форматирование/монтирование дисков
+├── scripts/
+│   ├── audit.sh              # read-only аудит системы (один запуск — вся картина)
+│   └── apply-zram.sh         # установщик zram (RAM/2, zstd, swappiness 150)
+└── README.md
+```
+
+## Безопасность
+
+- Скрипты `audit.sh` — read-only; `apply-zram.sh` — идемпотентный, есть `--dry-run`.
+- Каждая команда с `sudo` — только с согласия владельца; деструктивные
+  операции (диски) — с явным подтверждением.
+- Шрифты Microsoft (Segoe UI, Cascadia) — проприетарные: установка локальная,
+  по выбору владельца (альтернатива — взять из существующего Windows-раздела).
+
+## References (первоисточники)
+
+- Ускорение: github.com/winterofhell/fedora-optimizations ·
+  copr.fedorainfracloud.org/coprs/bieszczaders/kernel-cachyos ·
+  discussion.fedoraproject.org · phoronix.com/review/cachyos-x86-64-v3-v4
+- Цвета: github.com/zb3/gnome-gamma-tool · wiki.archlinux.org (Wayland gamma)
+- Терминалы: github.com/wez/wezterm · github.com/mbadolato/iTerm2-Color-Schemes
+- zram: docs.kernel.org/admin-guide/blockdev/zram.html ·
+  wiki.archlinux.org/title/Zram · github.com/systemd/zram-generator
