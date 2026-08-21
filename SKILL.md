@@ -22,6 +22,7 @@ description: "Make Fedora look and feel like Windows and run faster. Use when th
 | «настрой zram/своп», «сжатый своп» | `references/05-zram.md` |
 | «отформатируй диск», «не пишет на диск», разметка, fstab | `references/06-disks.md` |
 | «напарник не видит игру по удалёнке», «чёрный экран в RustDesk», «мало FPS при демонстрации экрана» | `references/07-rustdesk-games.md` |
+| «линукс умирает от нехватки ОЗУ», «файл подкачки», «сделай больше свопа», «чтобы не падал» | `references/08-swapfile-backup.md` |
 
 **Когда НЕ использовать:** серверы (там свои правила — не трогать
 NetworkManager-wait-online); настройка Firefox (отдельный скилл);
@@ -73,6 +74,10 @@ bash scripts/apply-zram.sh             # применить (sudo, размер 
    direct scanout мимо композитора (чёрный экран у напарника); лечится
    `MUTTER_DEBUG_PAINT=disable-direct-scanout` + виртуальный стол Wine.
    Лимит FPS по умолчанию 30 — поднимается до 120 аппаратным H.264 (NVENC).
+8. **Файл подкачки (страховка от OOM)** — zram без дна: когда RAM+zram
+   кончаются, Linux умирает (OOM-kill/фриз). Файл 16G на диске с приоритетом
+   ниже zram = система тормозит, но не падает; на LUKS-root подкачка
+   автоматически зашифрована.
 
 ## Структура
 
@@ -86,7 +91,8 @@ fedora-windows-look/
 │   ├── 04-terminals.md       # Alacritty, WezTerm, Konsole + Cascadia Mono
 │   ├── 05-zram.md            # zram-своп (универсально)
 │   ├── 06-disks.md           # форматирование/монтирование дисков
-│   └── 07-rustdesk-games.md  # RustDesk: чёрный экран (Wayland/NVIDIA) + FPS до 120
+│   ├── 07-rustdesk-games.md  # RustDesk: чёрный экран (Wayland/NVIDIA) + FPS до 120
+│   └── 08-swapfile-backup.md # файл подкачки на диске: страховка от OOM за zram
 ├── scripts/
 │   ├── audit.sh              # read-only аудит системы (один запуск — вся картина)
 │   └── apply-zram.sh         # установщик zram (RAM/2, zstd, swappiness 150)
