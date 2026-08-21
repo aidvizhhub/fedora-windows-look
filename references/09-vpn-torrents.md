@@ -160,6 +160,24 @@ systemctl restart qbittorrent-nox
 - Fetch finished files: `scp root@<SERVER_IP>:/srv/torrents/<file> ~/Загрузки/`
   or any SFTP client.
 
+## Baseline (input data, measured)
+
+Generic observations from a small budget VPS (1 vCPU / 2G RAM / ~80G virtual
+disk) — no identifying specifics, just the numbers that matter for planning:
+
+- **Link**: ~600 Mbps class — verified with a single-stream download at
+  ~76 MB/s when the box was idle. The channel itself is real.
+- **vCPU: 1 core — the actual bottleneck.** BitTorrent on a single core tops
+  out around 180–230 Mbps (≈ 23–28 MB/s): thousands of peer connections,
+  per-piece hashing and encryption eat the core whole (observed load > 2.5
+  on 1 vCPU while downloading). The WebUI will show ~20-odd MB/s no matter
+  how fat the link is.
+- **Disk**: ~380 MB/s write — not a bottleneck at these speeds.
+- **Takeaway**: on a 1-vCPU box expect the torrent client to cap at roughly a
+  third of a 600 Mbps link. For full-link torrents plan 2–4 vCPU (usually a
+  few dollars more per month). Single-stream HTTP (curl/CDN) still reaches
+  the full link on one core — don't mistake that test for torrent capacity.
+
 ## Results
 
 - Throughput via VPN ≈ 85–90% of the direct link (measured 5–8 MB/s vs
