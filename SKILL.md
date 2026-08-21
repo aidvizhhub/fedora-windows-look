@@ -1,6 +1,6 @@
 ---
 name: fedora-windows-look
-description: "Make Fedora look and feel like Windows and run faster. Use when the user asks to speed up Fedora/GNOME (slow boot, which services to disable, custom kernel), set warm display colors like Windows (cold/washed-out screen, gamma, night light), apply a Windows 11 look (dark theme, Segoe UI, cursors, sounds, taskbar), set up terminals like Windows Terminal (Alacritty/WezTerm/Konsole, Cascadia Mono), tune zram swap, or format/mount disks. Covers: audit -> speedup -> warm colors -> windows-look -> terminals -> zram -> disks."
+description: "Make Fedora look and feel like Windows and run faster. Use when the user asks to speed up Fedora/GNOME (slow boot, which services to disable, custom kernel), set warm display colors like Windows (cold/washed-out screen, gamma, night light), apply a Windows 11 look (dark theme, Segoe UI, cursors, sounds, taskbar), set up terminals like Windows Terminal (Alacritty/WezTerm/Konsole, Cascadia Mono), tune zram swap, format/mount disks, or fix RustDesk for games (black screen on Wayland/NVIDIA, boost FPS to 120). Covers: audit -> speedup -> warm colors -> windows-look -> terminals -> zram -> disks -> rustdesk."
 ---
 
 # Fedora → Windows Look & Performance
@@ -8,7 +8,8 @@ description: "Make Fedora look and feel like Windows and run faster. Use when th
 Пакет инструкций, проверенных живьём на Fedora (GNOME + Wayland): ускорение
 системы, тёплые цвета дисплея как на Windows, полный Windows-лук (тёмная тема,
 шрифты, курсоры, звуки, панель), терминалы как Windows Terminal, zram-своп,
-форматирование дисков. Каждый шаг обратим, каждая правка — с командой отката.
+форматирование дисков, RustDesk для игр (чёрный экран + FPS). Каждый шаг
+обратим, каждая правка — с командой отката.
 
 ## Когда использовать
 
@@ -20,6 +21,7 @@ description: "Make Fedora look and feel like Windows and run faster. Use when th
 | «поставь терминал как Windows Terminal», konsole тёмная тема, Cascadia Mono | `references/04-terminals.md` |
 | «настрой zram/своп», «сжатый своп» | `references/05-zram.md` |
 | «отформатируй диск», «не пишет на диск», разметка, fstab | `references/06-disks.md` |
+| «напарник не видит игру по удалёнке», «чёрный экран в RustDesk», «мало FPS при демонстрации экрана» | `references/07-rustdesk-games.md` |
 
 **Когда НЕ использовать:** серверы (там свои правила — не трогать
 NetworkManager-wait-online); настройка Firefox (отдельный скилл);
@@ -67,6 +69,10 @@ bash scripts/apply-zram.sh             # применить (sudo, размер 
    page-cluster 0 + zstd = свободная RAM под кэш.
 6. **Диски** — большинство «не пишет» лечится без переформатирования
    (ntfsfix dirty flag); fstab с nofail не вешает загрузку при отсутствии диска.
+7. **RustDesk для игр** — на Wayland+NVIDIA полноэкранная игра уходит в
+   direct scanout мимо композитора (чёрный экран у напарника); лечится
+   `MUTTER_DEBUG_PAINT=disable-direct-scanout` + виртуальный стол Wine.
+   Лимит FPS по умолчанию 30 — поднимается до 120 аппаратным H.264 (NVENC).
 
 ## Структура
 
@@ -79,7 +85,8 @@ fedora-windows-look/
 │   ├── 03-windows-look.md    # тёмная тема, шрифты, иконки, курсоры, звуки, расширения
 │   ├── 04-terminals.md       # Alacritty, WezTerm, Konsole + Cascadia Mono
 │   ├── 05-zram.md            # zram-своп (универсально)
-│   └── 06-disks.md           # форматирование/монтирование дисков
+│   ├── 06-disks.md           # форматирование/монтирование дисков
+│   └── 07-rustdesk-games.md  # RustDesk: чёрный экран (Wayland/NVIDIA) + FPS до 120
 ├── scripts/
 │   ├── audit.sh              # read-only аудит системы (один запуск — вся картина)
 │   └── apply-zram.sh         # установщик zram (RAM/2, zstd, swappiness 150)
