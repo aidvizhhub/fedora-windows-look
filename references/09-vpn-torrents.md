@@ -67,7 +67,7 @@ systemctl enable wg-quick@wg0 && systemctl start wg-quick@wg0
 ### 2. Client: Fedora 44
 
 - **IPv6 must be enabled.** A `99-no-ipv6.conf` with `disable_ipv6=1` breaks
-  `wg-quick` ("IPv6 is disabled on nexthop device") and AmneziaVPN entirely.
+  `wg-quick` ("IPv6 is disabled on nexthop device").
   Remove it and `sysctl -w net.ipv6.conf.all.disable_ipv6=0
   net.ipv6.conf.default.disable_ipv6=0`.
 - Client `/etc/wireguard/wg0.conf`: same keys as section 1, `MTU = 1392`,
@@ -193,8 +193,5 @@ disk) — no identifying specifics, just the numbers that matter for planning:
 - The route's 1–3% loss and latency live **between** ISP and server — tuning
   the tunnel cannot delete them; choose a server with good peering for the
   client's region.
-- AmneziaVPN auto-enables obfuscation (Jc/Jmin/Jmax) when importing a plain
-  WireGuard config — that breaks connectivity to a plain WG server; disable
-  it or skip the app.
 - Hairpin self-tests for forwarded ports report "closed" even when the port is
   open from the internet — always confirm with an external checker.
