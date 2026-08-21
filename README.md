@@ -18,6 +18,9 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 | Терминалы | `references/04-terminals.md` | Alacritty, WezTerm, Konsole + Cascadia Mono |
 | zram | `references/05-zram.md` | сжатый своп: RAM/2, zstd, swappiness 150 |
 | Диски | `references/06-disks.md` | форматирование, монтирование, fstab, NTFS-fix |
+| RustDesk + игры | `references/07-rustdesk-games.md` | удалёнка, гейминг-тюнинг |
+| Своп-файл | `references/08-swapfile-backup.md` | дисковый своп за zram, защита от OOM |
+| VPN + торренты | `references/09-vpn-torrents.md` | свой WireGuard с нуля, клиент Fedora, MTU/BBR, проброс портов, сидбокс |
 | Скрипты | `scripts/` | `audit.sh` (read-only аудит), `apply-zram.sh` (идемпотентный, `--dry-run`) |
 
 ## Быстрый старт
