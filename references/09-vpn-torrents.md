@@ -195,3 +195,61 @@ disk) — no identifying specifics, just the numbers that matter for planning:
   client's region.
 - Hairpin self-tests for forwarded ports report "closed" even when the port is
   open from the internet — always confirm with an external checker.
+
+## Sources (verified 2026-08)
+
+**MTU black holes / MTU tuning**
+
+- TunnelPicks — MTU tuning for WireGuard/OpenVPN: https://tunnelpicks.net/blog/mtu-tuning-wireguard-openvpn-fix-slow-2026
+- BufferSpeed — fix VPN MTU issues: https://bufferspeed.com/blog/fix-vpn-mtu-issues
+- Voxfor — MTU black holes on VPS networks: https://www.voxfor.com/wireguard-mtu-black-holes-vps/
+- Tryssh — WG MTU black hole diagnosis: https://tryssh.com/blog/server-wireguard-mtu-black-hole.html
+
+**BitTorrent CPU bottleneck (single core)**
+
+- qBittorrent issue #19491 — "100% CPU on one core only when high speed download": https://github.com/qbittorrent/qBittorrent/issues/19491
+- qBittorrent issue #23910 — "Only single threaded uses only single core": https://github.com/qbittorrent/qBittorrent/issues/23910
+
+**BBR congestion control**
+
+- IETF draft (BBR spec): https://www.ietf.org/archive/id/draft-ietf-ccwg-bbr-00.html
+- Stanford — BBR: Congestion-Based Congestion Control (PDF): https://web.stanford.edu/class/cs244/papers/bbr.pdf
+- ACM Queue — BBR measuring bottleneck bandwidth: https://spawn-queue.acm.org/doi/10.1145/3012426.3022184
+
+**WireGuard performance tuning (buffers, sysctl, fq)**
+
+- Defguard — Linux Kernel WireGuard tuning (UDP buffers ≥16 MB): https://docs.defguard.net/deployment-strategies/linux-kernel-wireguard-tuning
+- Red Hat RHEL 10 — tuning UDP connections (rmem_max/wmem_max): https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html/network_troubleshooting_and_performance_tuning/tuning-udp-connections
+- Pro Custodibus — WireGuard performance tuning: https://www.procustodibus.com/blog/2022/12/wireguard-performance-tuning/
+- GnTech — WG kernel sysctl + MTU optimization: https://blog.gntech.me/posts/2026-05-20-wireguard-kernel-performance-tuning/
+- Contabo — maximizing WireGuard performance: https://contabo.com/blog/maximizing-wireguard-performance/
+
+**Torrent port forwarding over WireGuard**
+
+- LowEndTalk — port forwarding for torrenting with WG on VPS: https://lowendtalk.com/discussion/193671/how-to-set-up-port-forwarding-for-torrenting-with-wireguard-vpn-on-vps
+- isamert.net — split tunneling & port forwarding qBittorrent + WG: https://isamert.net/2026/01/01/split-tunneling-and-port-forwarding-qbittorrent-with-wireguard-vpn.html
+
+**Seedbox approach**
+
+- Bytesized — seedbox vs VPN: https://bytesized-hosting.com/use-cases/seedbox-vs-vpn
+- PulsedMedia wiki — seedbox vs VPN for torrenting: https://wiki.pulsedmedia.com/wiki/Seedbox_vs_VPN_for_Torrenting
+- TechReviewAdvisor — seedbox eliminates ISP throttling: https://techreviewadvisor.com/seedbox-vs-vpn/
+
+**IPv6 disabled breaks wg-quick**
+
+- r/WireGuard — "IPv6 is disabled on nexthop device": https://www.reddit.com/r/WireGuard/comments/sfh1vp/one_problem_solved_next_issue_to_fix/
+- Manjaro forum — wg-quick IPv6 nexthop error: https://forum.manjaro.org/t/wg-quick-says-ipv6-is-diabled-on-nexthop-device-after-moving-to-kernel-5-13/79718
+- sgued.fr — IPv4-only WG with disabled IPv6: https://sgued.fr/blog/wg-ipv4/
+
+**qBittorrent port behaviour**
+
+- qBittorrent issue #22115 — automatic random port changes: https://github.com/qbittorrent/qBittorrent/issues/22115
+
+**Upload cap matters for download speed**
+
+- MacMyths — upload tuning is the single most important optimization: https://macmyths.com/how-to-optimize-qbittorrent-speeds/
+
+**Hairpin NAT / self-test false negatives**
+
+- MikroTik forum — hairpin NAT fails with WireGuard: https://forum.mikrotik.com/t/wireguard-hairpin-nat-issue/181051
+- PremierVPN KB — test from outside, not the same device: https://premiervpn.net/kb/dedicated-wireguard-vpn/troubleshooting-wireguard-connection-issues
