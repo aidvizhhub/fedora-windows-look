@@ -21,6 +21,7 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 | RustDesk + игры | `references/07-rustdesk-games.md` | удалёнка, гейминг-тюнинг |
 | Своп-файл | `references/08-swapfile-backup.md` | дисковый своп за zram, защита от OOM |
 | VPN + торренты | `references/09-vpn-torrents.md` | свой WireGuard с нуля, клиент Fedora, MTU/BBR, проброс портов, сидбокс |
+| Аудио: задний разъём | `references/11-rear-audio-jack.md` | «мёртвый» задний зелёный: пин кодека выключен, hda-verb + автозапуск |
 | Скрипты | `scripts/` | `audit.sh` (read-only аудит), `apply-zram.sh` (идемпотентный, `--dry-run`) |
 
 ## Быстрый старт

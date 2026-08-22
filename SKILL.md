@@ -1,6 +1,6 @@
 ---
 name: fedora-windows-look
-description: "Make Fedora look and feel like Windows and run faster. Use when the user asks to speed up Fedora/GNOME (slow boot, which services to disable, custom kernel), set warm display colors like Windows (cold/washed-out screen, gamma, night light), apply a Windows 11 look (dark theme, Segoe UI, cursors, sounds, taskbar), set up terminals like Windows Terminal (Alacritty/WezTerm/Konsole, Cascadia Mono), tune zram swap, format/mount disks, fix RustDesk for games (black screen on Wayland/NVIDIA, boost FPS to 120), set up WireGuard VPN + torrents/seedbox, or install/configure OBS Studio for local recording (Flatpak, NVENC HEVC, CQP, 120/144 fps, MKV). Covers: audit -> speedup -> warm colors -> windows-look -> terminals -> zram -> disks -> rustdesk -> vpn -> obs."
+description: "Make Fedora look and feel like Windows and run faster. Use when the user asks to speed up Fedora/GNOME (slow boot, which services to disable, custom kernel), set warm display colors like Windows (cold/washed-out screen, gamma, night light), apply a Windows 11 look (dark theme, Segoe UI, cursors, sounds, taskbar), set up terminals like Windows Terminal (Alacritty/WezTerm/Konsole, Cascadia Mono), tune zram swap, format/mount disks, fix RustDesk for games (black screen on Wayland/NVIDIA, boost FPS to 120), set up WireGuard VPN + torrents/seedbox, install/configure OBS Studio for local recording (Flatpak, NVENC HEVC, CQP, 120/144 fps, MKV), or fix a dead rear audio jack (Realtek HDA pin disabled, hda-verb). Covers: audit -> speedup -> warm colors -> windows-look -> terminals -> zram -> disks -> rustdesk -> vpn -> obs -> audio-jack."
 ---
 
 # Fedora → Windows Look & Performance
@@ -25,6 +25,7 @@ description: "Make Fedora look and feel like Windows and run faster. Use when th
 | «линукс умирает от нехватки ОЗУ», «файл подкачки», «сделай больше свопа», «чтобы не падал» | `references/08-swapfile-backup.md` |
 | «настрой VPN», «wireguard», «торренты медленно», «сидбокс» | `references/09-vpn-torrents.md` |
 | «поставь OBS», «настрой запись видео», «запись тормозит», «файлы записи жирные» | `references/10-obs-studio.md` |
+| «задний зелёный молчит», «наушники в Line Out не играют», «звук только из переднего разъёма» | `references/11-rear-audio-jack.md` |
 
 **Когда НЕ использовать:** серверы (там свои правила — не трогать
 NetworkManager-wait-online); настройка Firefox (отдельный скилл);
@@ -87,6 +88,10 @@ bash scripts/apply-zram.sh             # применить (sudo, размер 
     легче, качество выше); NVENC — отдельный чип, CPU не грузит; настройки
     энкодера — в `recordEncoder.json`, а не в `basic.ini`; 120/144 FPS —
     только Integer/Fraction режимы.
+11. **Задний звуковой разъём** — «мёртвый» задний зелёный при живом переднем
+    это НЕ поломка железа: пин кодека выключен (`Pin-ctls: 0x00`), лечится
+    `hda-verb` + юнит автозапуска; путаница портов «Наушники» (перед) vs
+    «Линейный выход» (зад) и чёрная дыра «Цифрового выхода» (S/PDIF).
 
 ## Структура
 
@@ -103,7 +108,8 @@ fedora-windows-look/
 │   ├── 07-rustdesk-games.md  # RustDesk: чёрный экран (Wayland/NVIDIA) + FPS до 120
 │   ├── 08-swapfile-backup.md # файл подкачки на диске: страховка от OOM за zram
 │   ├── 09-vpn-torrents.md    # WireGuard VPN + быстрые торренты (сидбокс)
-│   └── 10-obs-studio.md      # OBS: установка (Flatpak) + запись NVENC/CQP/144fps
+│   ├── 10-obs-studio.md      # OBS: установка (Flatpak) + запись NVENC/CQP/144fps
+│   └── 11-rear-audio-jack.md # «мёртвый» задний зелёный: пин кодека выключен (hda-verb)
 ├── scripts/
 │   ├── audit.sh              # read-only аудит системы (один запуск — вся картина)
 │   └── apply-zram.sh         # установщик zram (RAM/2, zstd, swappiness 150)
