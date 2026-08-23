@@ -25,6 +25,7 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 | AC Odyssey + Wine | `references/12-ac-odyssey-wine.md` | игра виснет на загрузке: loader_section deadlock → WINEDEBUG=+loaddll, DXVK рядом с exe, без dxvk.conf |
 | OBS хоткеи (Wayland) | `references/13-obs-wayland-hotkeys.md` | нативные хоткеи OBS не работают в фоне → плагин Wayland Hotkeys + клавиши в dconf системы |
 | Глобальные клавиши | `references/14-global-hotkeys-wayland.md` | назначить клавиши на любой софт: портал / WebSocket-мост / evdev |
+| Видеоплееры | `references/15-video-players-vlc-celluloid.md` | VLC (универсал) + Celluloid (блогер): установка + фикс flatpak-песочницы «не видит файлы» |
 | Скрипты | `scripts/` | `audit.sh` (read-only аудит), `apply-zram.sh` (идемпотентный, `--dry-run`) |
 
 ## Быстрый старт

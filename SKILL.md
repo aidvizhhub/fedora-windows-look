@@ -1,6 +1,6 @@
 ---
 name: fedora-windows-look
-description: "Make Fedora look and feel like Windows and run faster. Use when the user asks to speed up Fedora/GNOME (slow boot, which services to disable, custom kernel), set warm display colors like Windows (cold/washed-out screen, gamma, night light), apply a Windows 11 look (dark theme, Segoe UI, cursors, sounds, taskbar), set up terminals like Windows Terminal (Alacritty/WezTerm/Konsole, Cascadia Mono), tune zram swap, format/mount disks, fix RustDesk for games (black screen on Wayland/NVIDIA, boost FPS to 120), set up WireGuard VPN + torrents/seedbox, install/configure OBS Studio for local recording (Flatpak, NVENC HEVC, CQP, 120/144 fps, MKV), fix a dead rear audio jack (Realtek HDA pin disabled, hda-verb), or fix a Windows game that hangs on the loading screen under Wine (loader_section deadlock, WINEDEBUG=+loaddll, DXVK next to exe), or make global hotkeys work on Wayland (OBS recording/streaming from any window, GNOME Global Shortcuts portal, dconf bindings, WebSocket bridge). Covers: audit -> speedup -> warm colors -> windows-look -> terminals -> zram -> disks -> rustdesk -> vpn -> obs -> audio-jack -> ac-odyssey-wine -> obs-wayland-hotkeys -> global-hotkeys-wayland."
+description: "Make Fedora look and feel like Windows and run faster. Use when the user asks to speed up Fedora/GNOME (slow boot, which services to disable, custom kernel), set warm display colors like Windows (cold/washed-out screen, gamma, night light), apply a Windows 11 look (dark theme, Segoe UI, cursors, sounds, taskbar), set up terminals like Windows Terminal (Alacritty/WezTerm/Konsole, Cascadia Mono), tune zram swap, format/mount disks, fix RustDesk for games (black screen on Wayland/NVIDIA, boost FPS to 120), set up WireGuard VPN + torrents/seedbox, install/configure OBS Studio for local recording (Flatpak, NVENC HEVC, CQP, 120/144 fps, MKV), fix a dead rear audio jack (Realtek HDA pin disabled, hda-verb), or fix a Windows game that hangs on the loading screen under Wine (loader_section deadlock, WINEDEBUG=+loaddll, DXVK next to exe), or make global hotkeys work on Wayland (OBS recording/streaming from any window, GNOME Global Shortcuts portal, dconf bindings, WebSocket bridge), or pick/install a video player (VLC universal + Celluloid for creators, Flatpak sandbox fix for 'can't open local files'). Covers: audit -> speedup -> warm colors -> windows-look -> terminals -> zram -> disks -> rustdesk -> vpn -> obs -> audio-jack -> ac-odyssey-wine -> obs-wayland-hotkeys -> global-hotkeys-wayland -> video-players."
 ---
 
 # Fedora → Windows Look & Performance
@@ -29,6 +29,7 @@ description: "Make Fedora look and feel like Windows and run faster. Use when th
 | «игра не запускается на вине», «виснет на загрузке», «loader_section deadlock», «AC Odyssey не стартует» | `references/12-ac-odyssey-wine.md` |
 | «хоткеи OBS не работают в игре», «глобальные клавиши на Wayland», «запись не стартует из игры» | `references/13-obs-wayland-hotkeys.md` |
 | «назначить глобальные клавиши на софт», «хоткеи в фоне не работают», «Wayland перехват клавиш» | `references/14-global-hotkeys-wayland.md` |
+| «какой видеоплеер поставить», «видео не открывается во flatpak-плеере», «Celluloid не видит файлы» | `references/15-video-players-vlc-celluloid.md` |
 
 **Когда НЕ использовать:** серверы (там свои правила — не трогать
 NetworkManager-wait-online); настройка Firefox (отдельный скилл);
@@ -107,6 +108,10 @@ bash scripts/apply-zram.sh             # применить (sudo, размер 
 14. **Глобальные клавиши на любой софт** — три уровня: 🟢 приложение
     поддерживает портал (плагин), 🟡 мост через WebSocket/CLI +
     кастомный шорткат DE, 🔴 evdev-демон. Комбо вместо одиночных клавиш.
+15. **Видеоплееры** — VLC (универсал, host-доступ из коробки) +
+    Celluloid (mpv-движок, для блогера: HEVC, скриншоты, скорость).
+    «Формат не поддерживается» во flatpak-плеере = ПЕСОЧНИЦА
+    (xdg-pictures), не кодеки: лечится `flatpak override --filesystem=home`.
 
 ## Структура
 
@@ -127,7 +132,8 @@ fedora-windows-look/
 │   ├── 11-rear-audio-jack.md # «мёртвый» задний зелёный: пин кодека выключен (hda-verb)
 │   ├── 12-ac-odyssey-wine.md # AC Odyssey (EMPRESS) + Wine: loader_section deadlock → WINEDEBUG=+loaddll, DXVK рядом с exe, без dxvk.conf
 │   ├── 13-obs-wayland-hotkeys.md # OBS хоткеи на Wayland: комбо + плагин Global Shortcuts portal + dconf
-│   └── 14-global-hotkeys-wayland.md # глобальные клавиши на любой софт: портал / WebSocket-мост / evdev
+│   ├── 14-global-hotkeys-wayland.md # глобальные клавиши на любой софт: портал / WebSocket-мост / evdev
+│   └── 15-video-players-vlc-celluloid.md # видеоплееры: VLC + Celluloid, фикс sandbox «не видит файлы»
 ├── scripts/
 │   ├── audit.sh              # read-only аудит системы (один запуск — вся картина)
 │   └── apply-zram.sh         # установщик zram (RAM/2, zstd, swappiness 150)
