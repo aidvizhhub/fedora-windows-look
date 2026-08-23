@@ -91,12 +91,14 @@ pactl set-sink-port {SINK} analog-output-lineout
 ```bash
 sudo tee /etc/systemd/system/rear-lineout-fix.service > /dev/null <<EOF
 [Unit]
-Description=Enable rear line-out pin on HDA codec (Pin-ctls OUT)
+Description=Enable rear line-out pin on HDA codec (Pin-ctls OUT) - auto card lookup
 After=sound.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/hda-verb /dev/snd/{CARD_DEV} {REAR_LINEOUT_NID} SET_PIN_WIDGET_CONTROL 0x40
+# $$ = экранирование systemd (переменная для шелла, НЕ для systemd!)
+# карту ищем по ИМЕНИ (PCH), чтобы пережить смену порядка карт (USB-устройства)
+ExecStart=/bin/sh -c 'CARD=$$(basename "$$(readlink -f /proc/asound/PCH)"); CARD=$${CARD#card}; exec /usr/bin/hda-verb /dev/snd/hwC$${CARD}D0 0x14 SET_PIN_WIDGET_CONTROL 0x40'
 RemainAfterExit=yes
 
 [Install]
@@ -106,6 +108,21 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now rear-lineout-fix.service
 systemctl is-active rear-lineout-fix.service   # → active
 ```
+
+ВАЖНО (проверено 23 авг 2026 — беда ВОЗВРАЩАЛАСЬ!):
+- **Юнит с ЖЁСТКИМ номером карты (`hwC0D0`) ЛОМАЕТСЯ**, когда порядок
+  карт меняется (подключили USB-микрофон → он стал card0, PCI-звук → card1).
+  Симптом: юнит падает `hda-verb open: No such file or directory`,
+  пин заднего разъёма снова `Pin-ctls: 0x00` — «беда вернулась».
+  Проверка: `systemctl is-active rear-lineout-fix.service` → failed.
+- **ЛЕЧЕНИЕ:** юнит ищет карту по ИМЕНИ из `/proc/asound/PCH`, а не по
+  номеру (см. выше) — переживает любые перестановки.
+- **ГРАБЛИ systemd:** в ExecStart `$CARD` перехватывается systemd
+  (`Referenced but unset environment variable: CARD`), а `${CARD#card}`
+  падает как «Invalid environment variable name» — писать `$$CARD` /
+  `$${CARD#card}` (доллар доллара = переменная шелла).
+- **Утилита `hda-verb` на пути:** `which` может не найти, но бинарник
+  `/usr/bin/hda-verb` есть — юнит вызывает его напрямую.
 
 ## Verification
 
