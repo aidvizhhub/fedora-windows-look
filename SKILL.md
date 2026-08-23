@@ -1,6 +1,6 @@
 ---
 name: fedora-windows-look
-description: "Make Fedora look and feel like Windows and run faster. Use when the user asks to speed up Fedora/GNOME (slow boot, which services to disable, custom kernel), set warm display colors like Windows (cold/washed-out screen, gamma, night light), apply a Windows 11 look (dark theme, Segoe UI, cursors, sounds, taskbar), set up terminals like Windows Terminal (Alacritty/WezTerm/Konsole, Cascadia Mono), tune zram swap, format/mount disks, fix RustDesk for games (black screen on Wayland/NVIDIA, boost FPS to 120), set up WireGuard VPN + torrents/seedbox, install/configure OBS Studio for local recording (Flatpak, NVENC HEVC, CQP, 120/144 fps, MKV), or fix a dead rear audio jack (Realtek HDA pin disabled, hda-verb). Covers: audit -> speedup -> warm colors -> windows-look -> terminals -> zram -> disks -> rustdesk -> vpn -> obs -> audio-jack."
+description: "Make Fedora look and feel like Windows and run faster. Use when the user asks to speed up Fedora/GNOME (slow boot, which services to disable, custom kernel), set warm display colors like Windows (cold/washed-out screen, gamma, night light), apply a Windows 11 look (dark theme, Segoe UI, cursors, sounds, taskbar), set up terminals like Windows Terminal (Alacritty/WezTerm/Konsole, Cascadia Mono), tune zram swap, format/mount disks, fix RustDesk for games (black screen on Wayland/NVIDIA, boost FPS to 120), set up WireGuard VPN + torrents/seedbox, install/configure OBS Studio for local recording (Flatpak, NVENC HEVC, CQP, 120/144 fps, MKV), fix a dead rear audio jack (Realtek HDA pin disabled, hda-verb), or fix a Windows game that hangs on the loading screen under Wine (loader_section deadlock, WINEDEBUG=+loaddll, DXVK next to exe). Covers: audit -> speedup -> warm colors -> windows-look -> terminals -> zram -> disks -> rustdesk -> vpn -> obs -> audio-jack -> ac-odyssey-wine."
 ---
 
 # Fedora → Windows Look & Performance
@@ -26,6 +26,7 @@ description: "Make Fedora look and feel like Windows and run faster. Use when th
 | «настрой VPN», «wireguard», «торренты медленно», «сидбокс» | `references/09-vpn-torrents.md` |
 | «поставь OBS», «настрой запись видео», «запись тормозит», «файлы записи жирные» | `references/10-obs-studio.md` |
 | «задний зелёный молчит», «наушники в Line Out не играют», «звук только из переднего разъёма» | `references/11-rear-audio-jack.md` |
+| «игра не запускается на вине», «виснет на загрузке», «loader_section deadlock», «AC Odyssey не стартует» | `references/12-ac-odyssey-wine.md` |
 
 **Когда НЕ использовать:** серверы (там свои правила — не трогать
 NetworkManager-wait-online); настройка Firefox (отдельный скилл);
@@ -92,6 +93,11 @@ bash scripts/apply-zram.sh             # применить (sudo, размер 
     это НЕ поломка железа: пин кодека выключен (`Pin-ctls: 0x00`), лечится
     `hda-verb` + юнит автозапуска; путаница портов «Наушники» (перед) vs
     «Линейный выход» (зад) и чёрная дыра «Цифрового выхода» (S/PDIF).
+12. **AC Odyssey (EMPRESS) + Wine** — «тихая смерть» на загрузке (окно 1x1,
+    GPU ~5%, loader_section таймауты) это гонка загрузчика Wine, а не железо:
+    лечится `WINEDEBUG=+loaddll` (trace замедляет гонку) + DXVK DLL рядом с
+    exe; dxvk.conf (`enableGraphicsPipelineLibrary=False`) НАОБОРОТ убивает
+    запуск. Шейдеры кэшируются — второй запуск быстрее.
 
 ## Структура
 
@@ -109,7 +115,8 @@ fedora-windows-look/
 │   ├── 08-swapfile-backup.md # файл подкачки на диске: страховка от OOM за zram
 │   ├── 09-vpn-torrents.md    # WireGuard VPN + быстрые торренты (сидбокс)
 │   ├── 10-obs-studio.md      # OBS: установка (Flatpak) + запись NVENC/CQP/144fps
-│   └── 11-rear-audio-jack.md # «мёртвый» задний зелёный: пин кодека выключен (hda-verb)
+│   ├── 11-rear-audio-jack.md # «мёртвый» задний зелёный: пин кодека выключен (hda-verb)
+│   └── 12-ac-odyssey-wine.md # AC Odyssey (EMPRESS) + Wine: loader_section deadlock → WINEDEBUG=+loaddll, DXVK рядом с exe, без dxvk.conf
 ├── scripts/
 │   ├── audit.sh              # read-only аудит системы (один запуск — вся картина)
 │   └── apply-zram.sh         # установщик zram (RAM/2, zstd, swappiness 150)

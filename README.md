@@ -22,6 +22,7 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 | Своп-файл | `references/08-swapfile-backup.md` | дисковый своп за zram, защита от OOM |
 | VPN + торренты | `references/09-vpn-torrents.md` | свой WireGuard с нуля, клиент Fedora, MTU/BBR, проброс портов, сидбокс |
 | Аудио: задний разъём | `references/11-rear-audio-jack.md` | «мёртвый» задний зелёный: пин кодека выключен, hda-verb + автозапуск |
+| AC Odyssey + Wine | `references/12-ac-odyssey-wine.md` | игра виснет на загрузке: loader_section deadlock → WINEDEBUG=+loaddll, DXVK рядом с exe, без dxvk.conf |
 | Скрипты | `scripts/` | `audit.sh` (read-only аудит), `apply-zram.sh` (идемпотентный, `--dry-run`) |
 
 ## Быстрый старт
