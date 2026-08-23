@@ -171,3 +171,48 @@ systemctl is-active rear-lineout-fix.service   # → active
   — HDA codec troubleshooting, pin/amp basics.
 - pipewire.pages.freedesktop.org/wireplumber — ALSA monitor, ACP paths,
   `default-routes` state.
+
+## БОЛЕЗНЬ №2: пин СБРАСЫВАЕТСЯ ЧЕРЕЗ МИНУТЫ (codec power-save) — РЕШЕНО (авг 2026)
+
+СИМПТОМ: hda-verb включает пин (0x40), НО через некоторое время он СНОВА
+0x00 — «помогает на полчаса и сбрасывает». Юнит при boot active, но не спасает.
+
+ПРИЧИНА: ядро усыпляет кодек через `power_save` секунд без звука:
+`cat /sys/module/snd_hda_intel/parameters/power_save` → 10 (10 СЕКУНД!).
+Кодек засыпает → при пробуждении драйвер ПЕРЕИНИЦИАЛИЗИРУЕТ кодек →
+пины сбрасываются в 0x00. То есть ЛЮБАЯ пауза звука > power_save сбрасывает
+пин заднего разъёма! (кауфми: bbs.archlinux 280488, Reddit r/hackintosh
+17z9dnj «hda-verb settings don't persist beyond a couple minutes»).
+
+ЛЕЧЕНИЕ (двойное):
+1. ЯДРО — не спать кодеку никогда:
+   `/etc/modprobe.d/audio-power-save.conf`:
+   ```
+   options snd_hda_intel power_save=0
+   ```
+   (применяется при загрузке модуля / reboot)
+2. WIREPLUMBER — отключить power-save/suspend на уровне кодека
+   (сработало сразу, без reboot!) — канон gist Jastreb:
+   `~/.config/wireplumber/main.lua.d/51-audio-no-suspend.lua`:
+   ```lua
+   rule = {
+     matches = {
+       {
+         { "device.name", "matches", "alsa_card.*" },
+         { "device.bus", "equals", "pci" },
+         { "api.alsa.driver", "equals", "snd_hda_intel" },
+         { "device.profile.name", "matches", "analog-output.*" },
+       },
+     },
+     apply_properties = {
+       ["api.alsa.disable-power-save"] = true,
+       ["api.alsa.disable-suspend"] = true,
+     },
+   }
+   table.insert(alsa_monitor.rules, rule)
+   ```
+   `systemctl --user restart wireplumber`
+
+ПРОВЕРКА: включить пин → подождать ДОЛЖЕ power_save (напр. 35-65 сек +
+после звука) → `Pin-ctls: 0x40` держится = победа.
+Проверено 23 авг 2026: пин 0x40 через 35 с, 65 с, и после звука. ✅
