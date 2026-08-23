@@ -216,3 +216,57 @@ systemctl is-active rear-lineout-fix.service   # → active
 ПРОВЕРКА: включить пин → подождать ДОЛЖЕ power_save (напр. 35-65 сек +
 после звука) → `Pin-ctls: 0x40` держится = победа.
 Проверено 23 авг 2026: пин 0x40 через 35 с, 65 с, и после звука. ✅
+
+## БОЛЕЗНЬ №3: WirePlumber 0.5 УБИЛ Lua-защиту (авг 2026) — РЕШЕНО ✅
+
+СИМПТОМ (повтор после «починили»): юнит active при boot, пин включается
+0x40, НО через пару минут снова 0x00. power_save опять 10.
+
+ПРИЧИНЫ (улики + кауфми, 22 источника):
+1. `/etc/modprobe.d/audio-power-save.conf` создан ПОСЛЕ boot → модуль
+   snd_hda_intel загружен со СТАРЫМ power_save=10 (опция действует при
+   загрузке модуля, не «сейчас»). Проверка тайминга: `uptime -s` vs
+   `stat -c %y /etc/modprobe.d/*.conf`.
+2. **WirePlumber 0.5 НЕ читает Lua!** Лог: «Lua configuration files are NOT
+   supported in WirePlumber 0.5. You need to port them to the new format».
+   Наш `main.lua.d/51-audio-no-suspend.lua` МЁРТВ (0.4-канон), предупреждение
+   пишется, но защита не работает. Нюанс: `power_save=10` + suspend ноды
+   (`api.alsa.disable-suspend` больше не применяется) → кодек спит → пин
+   сбрасывается. (Кауфми: migration doc pipewire.pages.freedesktop.org,
+   ospi.fi blog, ArchWiki WirePlumber, daily.dev)
+3. Fedora-канон (Ask Fedora 141784): tuned (профили `balanced`/
+   `powersave`) перезаписывает power_save=10 при старте — править
+   `/etc/tuned/profiles/*/tuned.conf` (копия), `[audio] timeout=0`.
+   У нас профиль `throughput-performance` (секции [audio] нет — не трогает),
+   но на случай смены профиля — знать.
+
+ЛЕЧЕНИЕ (двойное, применяется при reboot автоматически):
+1. Юнит `rear-lineout-fix.service` теперь САМ ставит power_save=0 ПЕРЕД
+   hda-verb (ExecStartPre, работает ПОСЛЕ sound.target — модуль уже
+   загружен, sysfs доступен):
+   `ExecStartPre=/bin/sh -c 'echo 0 > /sys/module/snd_hda_intel/parameters/power_save'`
+2. НОВЫЙ формат WirePlumber 0.5 (SPA-JSON, НЕ Lua):
+   `~/.config/wireplumber/wireplumber.conf.d/51-audio-no-suspend.conf`:
+   ```
+   monitor.alsa.rules = [
+     {
+       matches = [ { node.name = "~alsa_output.pci-0000_00_1f.3.*" } ]
+       actions = { update-props = { session.suspend-timeout-seconds = 0 } }
+     }
+   ]
+   ```
+   `session.suspend-timeout-seconds = 0` = нода НЕ усыпает (man pipewire-props:
+   «Value 0 means the node will not be suspended»). Старый
+   `main.lua.d/51-audio-no-suspend.lua` — УДАЛИТЬ.
+3. `systemctl --user restart wireplumber` (всегда ставить `session.
+   suspend-timeout-seconds` в `update-props` — это свойство НОДЫ, матчим
+   `node.name`, НЕ `device.name`).
+
+ПРОВЕРКА (23 авг 2026 ✅): юнит active (ExecStartPre SUCCESS),
+`power_save=0`, `Pin-ctls: 0x40` держится 70 с и 2+ мин тишины,
+sink IDLE (не SUSPENDED!), pw-dump показывает
+`"session.suspend-timeout-seconds": 0` на ноде, логи wireplumber ЧИСТЫЕ.
+
+ГРАБЛИ: `pactl list sinks | grep "Active Port"` давал пусто — смотреть
+полный `pactl list sinks` / `pactl list short sinks` (состояние IDLE =
+нода жива). Проверка «не спит ли» = IDLE, SUSPENDED = уснула.
