@@ -270,3 +270,53 @@ sink IDLE (не SUSPENDED!), pw-dump показывает
 ГРАБЛИ: `pactl list sinks | grep "Active Port"` давал пусто — смотреть
 полный `pactl list sinks` / `pactl list short sinks` (состояние IDLE =
 нода жива). Проверка «не спит ли» = IDLE, SUSPENDED = уснула.
+
+## БОЛЕЗНЬ №4: юнит «сработал», но WirePlumber сбрасывает пин ПОСЛЕ него при boot (авг 2026) — РЕШЕНО ✅
+
+СИМПТОМ (24 авг 2026): юнит `rear-lineout-fix.service` active (exited),
+но пин снова `Pin-ctls: 0x00`. «Опять не слышно» на следующий день.
+
+ПРИЧИНА (по таймстампам, не гадание): при загрузке юнит срабатывает
+РАНЬШЕ wireplumber: юнит ExecStart 15:24:33, wireplumber стартует 15:24:48.
+WirePlumber при старте применяет профиль карты (ACP/пути) и ПЕРЕЗАПИСЫВАЕТ
+pin-ctls заново → пин возвращается в 0x00. Юнит остаётся «active» и больше
+ничего не делает (RemainAfterExit). Вчера держалось, потому что юнит
+дёргали вручную ПОСЛЕ старта wireplumber. Машина не спала, power_save=0,
+нода IDLE — а пин 0x00: это НЕ «уснул кодек», это гонка старта.
+
+ЛЕЧЕНИЕ: systemd-таймер-сторож — дёргает hda-verb каждые 5 минут
+(идемпотентно, безвредно):
+```
+# /etc/systemd/system/rear-lineout-watch.timer
+[Unit]
+Description=Watch rear line-out pin - re-apply hda-verb every 5 min
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=5min
+Unit=rear-lineout-fix.service
+
+[Install]
+WantedBy=timers.target
+```
+```
+sudo systemctl daemon-reload
+sudo systemctl enable --now rear-lineout-watch.timer
+```
+ГРАБЛИ (проверено):
+1. **`RemainAfterExit=yes` в юните ЛОМАЕТ таймер**: юнит после первого
+   запуска висит «active», таймер делает `start` на активный юнит =
+   NO-OP, hda-verb НЕ выполняется повторно (проверено: `systemctl show`
+   → ActiveState=active, Main PID вчерашний). Флаг удалить.
+2. `systemctl start` на уже активный (exited) юнит = no-op — сначала
+   `systemctl stop`, только потом start (или рестарт).
+3. Проверка механики: `systemctl list-timers rear-lineout-watch.timer`
+   → NEXT через ~5 мин, LAST = срабатывание; `systemctl show
+   rear-lineout-fix.service -p ActiveState` → inactive между тиками.
+4. Верификация пина ТОЛЬКО по блоку узла 0x14 (awk/поиск до «Device:»):
+   `grep -A3 "Pin-ctls" | head` НЕ годится — показывает ПЕРВЫЙ пин в дампе,
+   а это соседний выключенный N/A-пин (false positive!).
+
+Проверено на этой машине (24 авг 2026): пин 0x14 → 0x40, порт
+analog-output-lineout, sink RUNNING, paplay bell.oga играет ✅; таймер
+активен (NEXT=13:21), юнит inactive между тиками, пин держится ✅.
