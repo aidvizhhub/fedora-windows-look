@@ -259,3 +259,33 @@ If the clip is meant for the web directly and no post-bake is planned — record
 **60 fps natively**: `basic.ini` `[Video] FPSType=0 + FPSCommon=60` (on the
 Common-whitelist, §3), then no post-processing at all. 144 remains the local-review
 profile (§ "Profiles").
+
+## MP4 for delivery (Telegram/web): MKV master → MP4 road (verified 25 Aug 2026)
+
+### Why two files
+- **MKV = master** (storage/edits): HEVC copy fits lossless, container is crash-safe.
+- **MP4 = road** (publishing): Telegram/players read it as media, not a file.
+- Rule: never try to *copy* HEVC into MP4 (broken trailer, known trap) — instead
+  **re-encode video to H.264** once for delivery.
+
+### The delivery bake (H.264 for web, ~7.5x speed)
+```
+ffmpeg -i master.mkv -map 0:v -map 0:a -map 0:s \
+  -c:v h264_nvenc -preset p4 -cq 21 -c:a copy -c:s mov_text \
+  -metadata:s:s:0 language=rus -movflags +faststart out.mp4
+```
+- NVENC H.264 on the same clip ran **7.5x realtime** (30-min clip → ~4 min), vs ~2.8x for HEVC branding pass.
+- Verified: 30:02 clip → 379 MB H.264 60/1 + AAC + mov_text subs; `moov` moved to
+  the start (faststart) so playback starts instantly. Frames/watermark/line checked.
+- File size chain: 711 MB (144/1 HEVC master) → 351 MB (60/1 HEVC web) → 379 MB (60/1 H.264 Telegram).
+
+### OBS: record straight to MP4 — use **Hybrid MP4** (not plain MP4)
+- Plain MP4 writes its index at the end: crash/power loss = unreadable file
+  (14-crash lab: 0 of 14 recovered).
+- **Hybrid MP4** (OBS 30.2+, official kb/hybrid-mp4): writes fragmented
+  (crash-safe like MKV), then soft-remuxes into a regular MP4 at stop.
+  Output is a genuine `.mp4` — media-ready everywhere. Hybrid: 13/14 recovered.
+- Applied to profile `Редактор-h264` (backup first): `RecFormat2=hybrid_mp4`
+  in BOTH `[AdvOut]` (was `mkv` — that's why OBS was giving MKV) and
+  `[SimpleOutput]`. Backup: `basic.ini.bak-20260825`.
+- GUI check after start: Settings → Output → Recording → Format: **Hybrid MP4**.
