@@ -182,3 +182,55 @@ GPS=$(pgrep -f 'gnome-s[h]ell' | head -1)
 export $(tr '\0' '\n' < /proc/$GPS/environ | grep -E '^(DISPLAY|WAYLAND_DISPLAY|XAUTHORITY|XDG_RUNTIME_DIR)=' | tr '\n' ' ')
 nohup flatpak run com.obsproject.Studio > /tmp/obs.log 2>&1 &
 ```
+
+## Profiles: what to use when, and how to create one
+
+A profile in OBS bundles output + video settings (canvas, FPS, encoder,
+quality, container) into one folder. Switch between them with one click
+(Profiles menu) — no re-configuring each time. Three profiles cover the
+common cases:
+
+| Profile | Encoder | FPS | Use it for |
+|---|---|---|---|
+| Default / gameplay | HEVC (NVENC), CQP 20 | monitor refresh (120/144) | games, fast motion: smallest files, buttery motion. Costs the most in post (HEVC decode is heavy) |
+| Review / screencast | H.264 (NVENC), CQP 20 | 60 | universal option: smooth enough, and H.264 decodes ~2-3x cheaper in any editor, so both recording and post-processing are comfortable |
+| Talk / course / fast turnaround | H.264 (NVENC), CQP 20 | 30 | static screens (interfaces, slides, podcasts): visually almost identical to 60, but half the frames — fastest to process, smallest output |
+
+Rule of thumb: **HEVC saves disk, H.264 saves time in post.** Static
+content barely shows 30 vs 60 fps; fast motion does — hence gameplay at
+monitor rate, reviews at 60, talks at 30.
+
+### How to add a profile
+
+**UI way (safe):** OBS → Profiles → Add → name it → Settings → Output:
+encoder (NVENC H.264/H.265), Rate control CQP, 20, preset p5; Settings →
+Video: FPS + canvas. OBS writes everything itself, no file editing.
+
+**File way (automation; OBS must be closed** — it rewrites `basic.ini` on
+exit, see Pitfalls §2):
+
+```bash
+SRC=<config>/basic/profiles/Default
+DST=<config>/basic/profiles/Review-h264
+cp -r "$SRC" "$DST"
+```
+
+Then touch two files inside `$DST`:
+
+1. `basic.ini` — `[General] Name=` must match the **folder name** (otherwise
+   OBS de-duplicates and hides the profile after restart); `[AdvOut]
+   RecEncoder=obs_nvenc` (H.264; HEVC = `obs_nvenc_hevc_tex`); `[Video]` FPS
+   block: `FPSType=0` (Common) + `FPSCommon=60` for 60/1 (30 for 30/1 —
+   both are Common-whitelist values, §3).
+2. `recordEncoder.json` — the **actual NVENC settings** (basic.ini `Rec*`
+   keys are ghosts for NVENC, §2). Copying it from the source profile gives
+   the same CQP/preset/tune; the same JSON keys are valid for both H.264
+   and HEVC.
+
+Restart OBS (fully: `pkill -f "[o]bs"`, §3), then verify in the fresh log:
+`codec: H.264` (or HEVC), `rate_control: CQP`, `cqp: 20`, and
+`video settings reset: fps: 60/1`.
+
+Verified workflow: source profile (HEVC, 144 fps) duplicated into a
+review profile (H.264 + `recordEncoder.json` copied) — switched by the
+Profiles menu, recordings land with the right codec and presets.
