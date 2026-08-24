@@ -234,3 +234,28 @@ Restart OBS (fully: `pkill -f "[o]bs"`, §3), then verify in the fresh log:
 Verified workflow: source profile (HEVC, 144 fps) duplicated into a
 review profile (H.264 + `recordEncoder.json` copied) — switched by the
 Profiles menu, recordings land with the right codec and presets.
+
+## 60 FPS for delivery: bake once, deliver lighter (verified 25 Aug 2026)
+
+### Why 60, not 144
+Web platforms (YouTube, Telegram, most players) cap at **60 fps** anyway — 120/144
+(§3) matter only for local playback on a matching-Hz monitor. For distribution,
+baking at 60 fps is the 80/20 lever: **2.4× fewer frames** → render drops from
+~11 min to ~5 min per 30-min clip, and the file gets ~2× lighter.
+
+### The bake (branding + 60 fps in one pass)
+```
+VIDEO=src.mkv OUT=out.mkv bash /run/media/admin1/DATA/BROboses/bake/scripts/bake.sh
+```
+- Script has `-r 60` / `fps=60` in the final pass (one-char switch back to 144).
+- Does in ONE pass: 5-s logo intro (fade), semi-transparent watermark (bottom-right),
+  running text on TOP (pendulum, bordered), ASS subtitles (44 px, styled, +5 s shift),
+  loudnorm audio, perfect timestamps (concat-filter, not copy-join).
+- Verified: 30:08 clip → 351 MB @ 60/1 (vs 711 MB @ 144/1); frames/audio/watermark
+  checked frame-by-frame. The 144 version stays untouched for local viewing.
+
+### 60 for OBS recording too
+If the clip is meant for the web directly and no post-bake is planned — record at
+**60 fps natively**: `basic.ini` `[Video] FPSType=0 + FPSCommon=60` (on the
+Common-whitelist, §3), then no post-processing at all. 144 remains the local-review
+profile (§ "Profiles").
