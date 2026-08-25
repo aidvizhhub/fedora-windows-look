@@ -86,6 +86,7 @@ else
   G org.gnome.desktop.interface cursor-theme 'win11-aero'
   G org.gnome.desktop.sound theme-name 'win11'
   G org.gnome.desktop.sound event-sounds true
+  G org.gnome.settings-daemon.plugins.power idle-dim false
   # Windows-style taskbar (bottom) + start menu + blur + desktop icons
   G org.gnome.shell.extensions.dash-to-panel panel-position 'BOTTOM'
   G org.gnome.shell.extensions.arcmenu override-menu-theme true

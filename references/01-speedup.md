@@ -163,6 +163,7 @@ below is ALREADY set on this desktop; check and keep, do not "fix" back:
 | Power profile | `performance` (max) | `gdbus call --system --dest org.freedesktop.UPower.PowerProfiles --object-path /org/freedesktop/UPower/PowerProfiles --method org.freedesktop.DBus.Properties.Get org.freedesktop.UPower.PowerProfiles ActiveProfile` → `('performance',)` |
 | Auto screen blank | OFF (screen never blanks on idle) | `gsettings get org.gnome.desktop.session idle-delay` → `uint32 0` |
 | Auto suspend (idle) | OFF | `gsettings get org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type` → `'nothing'` |
+| Screen dim on idle | OFF (no dimming!) | `gsettings get org.gnome.settings-daemon.plugins.power idle-dim` → `false` |
 
 - PowerProfiles comes from modern `upower` itself (no
   `power-profiles-daemon` package needed; it is absent here and the
