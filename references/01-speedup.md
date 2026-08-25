@@ -152,6 +152,28 @@ nvidia-smi                 # GPU alive (if NVIDIA)
 systemctl --failed         # empty (masks do not fail)
 ```
 
+## Owner's power & energy rules (verified 2026-08-25)
+
+The owner wants maximum responsiveness, not battery savings — everything
+below is ALREADY set on this desktop; check and keep, do not "fix" back:
+
+| What | Value | Check command |
+|---|---|---|
+| Night Light | OFF (do NOT force-enable) | `gsettings get org.gnome.settings-daemon.plugins.color night-light-enabled` → `false` |
+| Power profile | `performance` (max) | `gdbus call --system --dest org.freedesktop.UPower.PowerProfiles --object-path /org/freedesktop/UPower/PowerProfiles --method org.freedesktop.DBus.Properties.Get org.freedesktop.UPower.PowerProfiles ActiveProfile` → `('performance',)` |
+| Auto screen blank | OFF (screen never blanks on idle) | `gsettings get org.gnome.desktop.session idle-delay` → `uint32 0` |
+| Auto suspend (idle) | OFF | `gsettings get org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type` → `'nothing'` |
+
+- PowerProfiles comes from modern `upower` itself (no
+  `power-profiles-daemon` package needed; it is absent here and the
+  profile still answers `performance` on the system bus).
+- To change the profile in GUI: Settings → Power → Power Mode →
+  Performance. To force it: `gdbus call --system ... HoldProfile s
+  performance manual` (then release with `ReleaseProfile`).
+- On a desktop (no battery, no `/sys/firmware/acpi/platform_profile`)
+  the profiles are cosmetic for the OS, but the control center still
+  shows them — keep Performance as the owner's choice.
+
 ## Success criteria
 
 - Faster boot: `systemd-analyze` before/after (typically 45s → 13s including

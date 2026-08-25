@@ -34,6 +34,9 @@ gsettings set org.gnome.settings-daemon.plugins.color night-light-temperature 42
   when other keys change. Always re-verify and set it LAST.
 - Prefer the VCGT temperature from §2 instead — same warmth, no Night Light
   flakiness, survives reboots.
+- ⚠️ **OWNER'S RULE on this host (verified 2026-08-25): Night Light is OFF
+  (`night-light-enabled=false`) — do NOT force-enable it.** Warmth comes
+  from the monitor OSD preset + VCGT profile (§2), not from Night Light.
 
 ## 2. gnome-gamma-tool (gamma / temperature / contrast / brightness) — persistent via VCGT
 
