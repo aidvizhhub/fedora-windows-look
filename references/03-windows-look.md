@@ -265,6 +265,24 @@ gsettings set org.gnome.shell.extensions.ding arrangeorder 'NAME'
 gsettings set org.gnome.shell.extensions.ding keep-arranged false
 ```
 
+## 5. Telegram — install (Fedora repo, no flatpak)
+
+```bash
+sudo dnf install -y telegram-desktop
+```
+
+- **Verified:** `telegram-desktop-7.0.6-1.fc44` (2026-08-25) — lives in
+  Fedora repos, an RPM Qt app; no flatpak needed.
+- **Dark theme:** it is a Qt app → the **1b trick applies as-is**
+  (`QT_QPA_PLATFORMTHEME=gtk3` in `~/.config/environment.d/`, see 1b
+  above) — nothing extra to configure.
+- **Flatpak alternative** (sandboxed, if preferred):
+  `flatpak install -y flathub org.telegram.desktop` — dark follows the
+  portal automatically, but the env var trick does NOT cross the sandbox.
+- **No tray icon on GNOME by default** — the app window is enough; if
+  you want the tray, add the AppIndicator extension (KStatusNotifier).
+- **Revert:** `sudo dnf remove -y telegram-desktop`.
+
 ## Rollback (Windows-look parts)
 
 - Cursors: `gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Classic'`

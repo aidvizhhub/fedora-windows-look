@@ -14,7 +14,7 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 | Обзор + маршрут | `SKILL.md` | когда какой раздел, главное правило, быстрый старт |
 | Ускорение | `references/01-speedup.md` | аудит → службы → загрузка → GNOME → ядро CachyOS |
 | Тёплые цвета | `references/02-warm-colors.md` | Night Light, VCGT-гамма, DDC монитора |
-| Windows-лук | `references/03-windows-look.md` | тёмная тема, Segoe UI, курсоры, звуки, расширения |
+| Windows-лук | `references/03-windows-look.md` | тёмная тема, Segoe UI, курсоры, звуки, расширения + установка Telegram (репозиторий Fedora) |
 | Терминалы | `references/04-terminals.md` | Alacritty, WezTerm, Konsole + Cascadia Mono |
 | zram | `references/05-zram.md` | сжатый своп: RAM/2, zstd, swappiness 150 |
 | Диски | `references/06-disks.md` | форматирование, монтирование, fstab, NTFS-fix |
