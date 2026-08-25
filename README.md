@@ -40,6 +40,7 @@ bash scripts/apply-zram.sh --dry-run  # zram: посмотреть план
 bash scripts/apply-zram.sh            # zram: применить (sudo)
 bash scripts/apply-windows-look.sh --dry-run   # лук «как на ПК»: посмотреть план
 bash scripts/apply-windows-look.sh --assets windows-look-assets.tar.gz  # применить (расширения — sudo)
+bash scripts/apply-windows-look.sh --vpn ~/vpn/сервер.conf  # сходу поднять WireGuard (путь свой, см. 09-vpn-torrents.md)
 ```
 
 Дальше — по `SKILL.md`: цвета → лук → терминалы, каждая секция с откатами.

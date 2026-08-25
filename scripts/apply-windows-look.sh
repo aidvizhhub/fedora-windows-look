@@ -5,16 +5,40 @@
 # Usage: bash apply-windows-look.sh [--dry-run] [--assets /path/to/windows-look-assets.tar.gz | --assets /tmp/...]
 set -u
 
-DRY=0; ASSETS=""
-for a in "$@"; do
-  case "$a" in
-    --dry-run) DRY=1 ;;
-    --assets) ASSETS="${2:-}" ;;
+DRY=0; ASSETS=""; VPN_CONF=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run) DRY=1; shift ;;
+    --assets) ASSETS="${2:-}"; shift 2 ;;
+    --vpn) VPN_CONF="${2:-}"; shift 2 ;;
+    *) shift ;;
   esac
 done
 
 log(){ echo "[look] $*"; }
 doit(){ if [ "$DRY" = 1 ]; then log "DRY: $*"; else eval "$*"; fi; }
+# WireGuard: setup on request, no hardcoded paths (full guide: references/09-vpn-torrents.md)
+setup_vpn(){
+  local conf="$1" iface
+  if [ ! -f "$conf" ]; then log "VPN: '$conf' not found — pass --vpn /path/to/xxx.conf"; return 1; fi
+  if ! rpm -q wireguard-tools >/dev/null 2>&1; then
+    if [ "$DRY" = 1 ]; then log "DRY: sudo dnf install -y wireguard-tools"; else sudo dnf install -y wireguard-tools; fi
+  fi
+  iface=$(basename "$conf" .conf)
+  log "VPN: interface '$iface' from '$conf'"
+  if [ "$DRY" = 1 ]; then
+    log "DRY: sudo cp $conf /etc/wireguard/$iface.conf && chmod 600 && up + enable"
+  else
+    sudo cp "$conf" "/etc/wireguard/$iface.conf"
+    sudo chown root:root "/etc/wireguard/$iface.conf"
+    sudo chmod 600 "/etc/wireguard/$iface.conf"
+    sudo wg-quick up "$iface"
+    sudo systemctl enable "wg-quick@$iface" >/dev/null 2>&1
+    sudo wg show 2>/dev/null | head -8
+    log "VPN: UP ✅ (auto-start on boot: enable). Down+remove:"
+    log "  sudo wg-quick down $iface && sudo systemctl disable wg-quick@$iface && sudo rm /etc/wireguard/$iface.conf"
+  fi
+}
 
 # 0. Facts
 SHELL_VER=$(gnome-shell --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | cut -d. -f1)
@@ -129,3 +153,11 @@ done
 
 log "done. EXTENSION KEYS apply after LOG OUT/IN (shell scans dirs only at startup)."
 log "Then check: gnome-extensions info <uuid>  (should be ACTIVE)"
+
+# 4. WireGuard — only if the owner asks (--vpn /path/to/xxx.conf)
+if [ -n "$VPN_CONF" ]; then
+  log "WireGuard requested via --vpn"
+  setup_vpn "$VPN_CONF"
+else
+  log "VPN: skipped (no --vpn flag). Full WireGuard guide: references/09-vpn-torrents.md"
+fi
