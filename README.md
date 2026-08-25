@@ -27,6 +27,7 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 | Глобальные клавиши | `references/14-global-hotkeys-wayland.md` | назначить клавиши на любой софт: портал / WebSocket-мост / evdev |
 | Видеоплееры | `references/15-video-players-vlc-celluloid.md` | VLC (универсал) + Celluloid (блогер): установка + фикс flatpak-песочницы «не видит файлы» |
 | Раскладки | `references/16-keyboard-layouts.md` | русский + английский: установка RU/EN, переключение как в Windows (Alt+Shift), консоль + экран входа |
+| OpenCode 2 | `references/17-opencode2.md` | AI-кодинг-агент (beta): установка `opencode2` без sudo, первый запуск, план/билд, грабли беты |
 | Скрипты | `scripts/` | `audit.sh` (read-only аудит), `apply-zram.sh` (идемпотентный, `--dry-run`) |
 
 ## Быстрый старт
