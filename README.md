@@ -30,7 +30,7 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 | OpenCode 2 | `references/17-opencode2.md` | AI-кодинг-агент (beta): установка `opencode2` без sudo, первый запуск, план/билд, грабли беты |
 | Camoufox MCP | `references/18-camoufox-mcp.md` | браузер-ресёрч для агента: установка в opencode2, фикс «Unknown tool» (новая сессия), codemode=false |
 | Sudo без пароля | `references/19-sudo-nopasswd.md` | passwordless sudo: ПРАВИЛО «только с согласия владельца», настройка через sudoers.d, проверка visudo, откат, узкая альтернатива |
-| Скрипты | `scripts/` | `audit.sh` (read-only аудит), `apply-zram.sh` (идемпотентный, `--dry-run`) |
+| Скрипты | `scripts/` | `audit.sh` (read-only аудит), `apply-zram.sh` (идемпотентный, `--dry-run`), `apply-windows-look.sh` (перенос вида «как на ПК» на другую Fedora: gsettings + ассеты + расширения) |
 
 ## Быстрый старт
 
@@ -38,6 +38,8 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 bash scripts/audit.sh                 # аудит, ничего не меняет
 bash scripts/apply-zram.sh --dry-run  # zram: посмотреть план
 bash scripts/apply-zram.sh            # zram: применить (sudo)
+bash scripts/apply-windows-look.sh --dry-run   # лук «как на ПК»: посмотреть план
+bash scripts/apply-windows-look.sh --assets windows-look-assets.tar.gz  # применить (расширения — sudo)
 ```
 
 Дальше — по `SKILL.md`: цвета → лук → терминалы, каждая секция с откатами.
