@@ -104,6 +104,25 @@ gsettings set org.gnome.desktop.interface document-font-name 'Segoe UI 12'
 No sudo needed (user-level install). Proprietary Microsoft font — user's own
 machine, user choice; alternative: install from an existing Windows partition.
 
+### Same look on Linux Mint / Cinnamon (the other machine)
+
+Copy the two font dirs over (e.g. a prepared tarball of
+`~/.local/share/fonts/{Microsoft,cascadia-mono}` — 7.9 MB), then:
+
+```bash
+# on the Mint machine:
+tar xzf windows-fonts.tar.gz -C ~/.local/share/fonts
+fc-cache -f ~/.local/share/fonts
+gsettings set org.cinnamon.desktop.interface font-name 'Segoe UI 11'
+gsettings set org.cinnamon.desktop.interface document-font-name 'Segoe UI 12'
+gsettings set org.cinnamon.desktop.interface monospace-font-name 'Cascadia Mono 11'
+```
+
+- Cinnamon caches font names; relogin (or `cinnamon-settings fonts` GUI)
+  to see the change everywhere.
+- The Mint default (`Noto Sans`/system Sans) is what the owner calls
+  "the strange brain font" — Segoe UI 11 makes it look like the main PC.
+
 Monospace = Windows 11 terminal font (Fedora package):
 ```bash
 sudo dnf install cascadia-code-fonts
