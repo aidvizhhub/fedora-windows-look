@@ -30,6 +30,7 @@ description: "Make Fedora look and feel like Windows and run faster. Use when th
 | «хоткеи OBS не работают в игре», «глобальные клавиши на Wayland», «запись не стартует из игры» | `references/13-obs-wayland-hotkeys.md` |
 | «назначить глобальные клавиши на софт», «хоткеи в фоне не работают», «Wayland перехват клавиш» | `references/14-global-hotkeys-wayland.md` |
 | «какой видеоплеер поставить», «видео не открывается во flatpak-плеере», «Celluloid не видит файлы» | `references/15-video-players-vlc-celluloid.md` |
+| «добавь русскую раскладку», «переключение языка как в Windows», «Alt+Shift не работает», «раскладка не на экране входа» | `references/16-keyboard-layouts.md` |
 
 **Когда НЕ использовать:** серверы (там свои правила — не трогать
 NetworkManager-wait-online); настройка Firefox (отдельный скилл);
