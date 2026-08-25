@@ -33,6 +33,7 @@ description: "Make Fedora look and feel like Windows and run faster. Use when th
 | «добавь русскую раскладку», «переключение языка как в Windows», «Alt+Shift не работает», «раскладка не на экране входа» | `references/16-keyboard-layouts.md` |
 | «поставь opencode», «opencode2 не работает», «AI-агент для кода», «как подключить API» | `references/17-opencode2.md` |
 | «camoufox Unknown tool», «MCP отвалился», «браузер для агента», «ресёрч через кауфми», «camoufox Connection closed» | `references/18-camoufox-mcp.md` |
+| «sudo без пароля», «sudo спрашивает пароль в скрипте», «NOPASSWD», «вернуть пароль sudo» | `references/19-sudo-nopasswd.md` (только с согласия владельца!) |
 
 **Когда НЕ использовать:** серверы (там свои правила — не трогать
 NetworkManager-wait-online); настройка Firefox (отдельный скилл);
