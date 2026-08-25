@@ -95,6 +95,15 @@ gsettings get org.gnome.shell enabled-extensions                    # each ext =
 
 ### Step 4 (optional) — CachyOS x86_64_v3 custom kernel
 
+> **Can you install it?** YES, if all checks in "Checks BEFORE installing"
+> pass: CPU supports x86-64_v3, Secure Boot is off, NVIDIA (if any) via
+> akmods. If ANY check fails — do NOT install; steps 1–3 give most of the gain.
+
+> **Status at home: installed & booting** (checked 2026-08-25, `uname -r` →
+> `7.1.8-cachyos1.fc44`). Why we run it: **~+10% in games** (SIMD-bound
+> workloads benefit from x86_64_v3 builds + BORE scheduler); it is NOT a
+> "+50%" rocket — everyday desktop ~0.
+
 Honest assessment: **not "+50%"** — single digits to ~10–20% in narrow
 workloads (SIMD: compression, media, scientific — up to 10–20%; everyday ~0;
 BORE scheduler — subjectively snappier). For a "rocket" — do steps 1–3 first;
