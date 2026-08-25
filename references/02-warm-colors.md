@@ -111,6 +111,31 @@ Expected: DDC lines show `6500 K (sl=0x05)` / contrast `75` / brightness `80`.
 `ddcutil` prints an EACCES warning about /dev/i2c-0 — harmless noise, the
 display is on another bus.
 
+## 6. Max refresh rate — GNOME applies it automatically at login
+
+Verified live: monitor ART G24F144 (144 Hz) on DP-1, GNOME Wayland,
+1920x1080 @ 143.993. `xrandr` shows the live mode with `*+`:
+`1920x1080    143.88*+` — the max rate IS active, not just "set" somewhere.
+
+- **Where it lives:** `~/.config/monitors.xml` (version="2" on GNOME 45+)
+  — the `<rate>143.993</rate>` per connector. At every login / monitor
+  (re)connect, mutter applies it automatically. **That IS the "auto max
+  Hz":** nothing else to install or run.
+- **Check now:** `xrandr | grep '\*'` (current rate, `*+` = primary)
+  or `cat ~/.config/monitors.xml | grep -i rate`.
+- **Set manually (one-time):** Settings → Displays → Refresh Rate →
+  144 → Apply; monitors.xml is rewritten with the new `<rate>`.
+- **If the monitor moves to another connector** (DP-1 → HDMI-A-1), GNOME
+  does not know that connector's spec → may fall back to 60 Hz. Fix: pick
+  the rate once in Settings → xml is rewritten for the new connector.
+- **Scripted safety net (the "other port" case), optional:** install
+  `pip install --user gnome-monitor-config`, autostart entry calling
+  `gnome-monitor-config set -p 1920x1080@144` (talks to mutter via D-Bus,
+  works on Wayland; exact syntax per the tool's docs — this host does NOT
+  need it, the xml already carries 144).
+- 144 Hz frame pacing on DP is native here; VRR (Freesync) is a monitor
+  OSD setting, not a GNOME one — unrelated to this section.
+
 ## Rollback
 
 - Night Light: `gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled false`
