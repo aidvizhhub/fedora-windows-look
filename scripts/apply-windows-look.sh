@@ -19,6 +19,28 @@ doit(){ if [ "$DRY" = 1 ]; then log "DRY: $*"; else eval "$*"; fi; }
 # 0. Facts
 SHELL_VER=$(gnome-shell --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | cut -d. -f1)
 log "GNOME shell: ${SHELL_VER:-?} (needs 45+)"
+log "OS: $(grep -E '^(NAME|VERSION_ID)=' /etc/os-release 2>/dev/null | tr '\n' ' ')"
+
+# 0b. RPM prerequisites (batch install, one sudo call)
+REQUIRED_PKGS="git curl tar gzip unzip adw-gtk3-theme cascadia-code-fonts xcursorgen"
+MISSING=""
+for p in $REQUIRED_PKGS; do
+  if ! rpm -q "$p" >/dev/null 2>&1; then MISSING="$MISSING $p"; fi
+done
+if [ -n "$MISSING" ]; then
+  log "missing RPMs:$MISSING — installing (one sudo dnf call)..."
+  if [ "$DRY" = 1 ]; then
+    log "DRY: sudo dnf install -y$MISSING"
+  else
+    if sudo dnf install -y $MISSING 2>&1 | grep -qiE "no package available|nothing provides"; then
+      log "WARN: some of$MISSING not found in current repos — check dnf history for the exact ones"
+    fi
+  fi
+else
+  log "RPM prerequisites — all present ✅"
+fi
+log "NOTE: dash-to-panel/arcmenu/blur-my-shell/ding do NOT exist as RPMs —"
+log "      they are installed from extensions.gnome.org (phase 3 below)."
 
 # 1. gsettings — the whole "look" (no sudo, safe)
 G(){ gsettings set "$1" "$2" 2>/dev/null; }
