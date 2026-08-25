@@ -29,6 +29,18 @@ Sizing: RAM (16G) + zram (8G) = 24G total — also the recommended size for
 hibernation support (Manjaro guide). Red Hat's rule for 16G RAM is 8–16G of
 swap; 16G disk + 8G zram fits.
 
+### Sizing rule by RAM (owner's, verified on this host)
+
+| RAM | disk swapfile | zram (RAM/2) | total swap |
+|---|---|---|---|
+| 8G | 32G | 4G | 36G |
+| 16G | 16G (2x smaller — the "меньше в 2 раза" rule) | 8G | 24G |
+
+This host: 16G RAM → 16G swapfile + 8G zram = 24G — exactly the rule.
+Do NOT inflate swap beyond the rule: disk swap is an overflow valve, not
+RAM — more swap means more OOM slack, not more speed. Re-size later in
+one command anytime (225G free on this host).
+
 ## Steps (exactly what was run)
 
 ```bash

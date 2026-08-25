@@ -19,7 +19,7 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 | zram | `references/05-zram.md` | сжатый своп: RAM/2, zstd, swappiness 150 |
 | Диски | `references/06-disks.md` | форматирование, монтирование, fstab, NTFS-fix |
 | RustDesk + игры | `references/07-rustdesk-games.md` | удалёнка, гейминг-тюнинг |
-| Своп-файл | `references/08-swapfile-backup.md` | дисковый своп за zram, защита от OOM |
+| Своп-файл | `references/08-swapfile-backup.md` | дисковый своп за zram, защита от OOM + правило размера по ОЗУ (8G→32G, 16G→16G) |
 | VPN + торренты | `references/09-vpn-torrents.md` | свой WireGuard с нуля, клиент Fedora, MTU/BBR, проброс портов, сидбокс |
 | Аудио: задний разъём | `references/11-rear-audio-jack.md` | «мёртвый» задний зелёный: пин кодека выключен, hda-verb + автозапуск |
 | AC Odyssey + Wine | `references/12-ac-odyssey-wine.md` | игра виснет на загрузке: loader_section deadlock → WINEDEBUG=+loaddll, DXVK рядом с exe, без dxvk.conf |
