@@ -1,5 +1,12 @@
 # 18 · Camoufox Research MCP — install in OpenCode 2, fix the "Unknown tool" curse
 
+<!-- meta
+категория: D-софт-инструменты
+риск: L1 (venv + конфиг пользователя)
+preflight-гейт: NETWORK_ONLINE=yes (скачивание браузера); opencode2 уже установлен (17)
+откат: в файле: удалить venv и строки opencode.json
+-->
+
 Verified live: Fedora 44, OpenCode 2 (`opencode2` v0.0.0-beta-18155),
 camoufox-research v0.2.0. Result: `opencode2 mcp list` → `✓ camoufox
 connected`; the agent calls all 48 tools DIRECTLY (this doc's research,
@@ -22,7 +29,7 @@ broken server.
 
 ```bash
 # 1. clone (to any work dir, e.g. ~/projects)
-git clone https://github.com/aidvizhhub/camoufox-research.git
+git clone https://github.com/<your-user>/camoufox-research.git
 
 # 2. isolated venv + package
 python3 -m venv ~/.venvs/camoufox-research

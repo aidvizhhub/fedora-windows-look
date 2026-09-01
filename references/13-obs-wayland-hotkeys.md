@@ -1,5 +1,12 @@
 # 13 · OBS hotkeys on Wayland: combos + how to defeat the shortcut wall
 
+<!-- meta
+категория: F-игры-контент
+риск: L1 (dconf пользователя) · L2 (плагин flatpak)
+preflight-гейт: SESSION_TYPE=wayland (иначе ADAPT: на X11 нативные хоткеи работают)
+откат: в файле: отвязать dconf-биндинги / снять плагин
+-->
+
 Verified live: Fedora, GNOME (Wayland, modern GNOME Shell with the
 Global Shortcuts portal), OBS Studio 32.x via Flathub + official
 Wayland Hotkeys plugin. Result: global recording/streaming hotkeys that

@@ -1,7 +1,14 @@
 # 19 · Passwordless sudo — the "ask first" rule & the clean setup
 
+<!-- meta
+категория: E-сеть-удалённый-доступ
+риск: L3 ВСЕГДА (доступ без пароля — правило племени: только с согласия владельца)
+preflight-гейт: СОГЛАСИЕ ВЛАДЕЛЬЦА (ни один тех-гейт не заменяет); sudoers.d — только после visudo -cf
+откат: в файле: rm /etc/sudoers.d/<пользователь>-nopasswd
+-->
+
 Verified live: Fedora 44 — this host ALREADY has it (`/etc/sudoers.d/
-admin1-nopasswd`, created 2026-08-06, `sudo -n true` → rc=0, no prompt);
+<user>-nopasswd`, created 2026-08-06, `sudo -n true` → rc=0, no prompt);
 `/etc/sudoers` itself keeps `%wheel ALL=(ALL) ALL` (with password).
 This tile documents the canonical setup for other machines, the safety
 checks and the revert. It did NOT change this host.
@@ -34,8 +41,8 @@ sudo chown root:root /etc/sudoers.d/$USER-nopasswd
 sudo chmod 440 /etc/sudoers.d/$USER-nopasswd
 
 # 3. syntax check BEFORE trusting (a broken sudoers.d kills ALL sudo!)
-sudo visudo -cf /etc/sudoers.d/$USER-nopasswd
-# expect: ".../admin1-nopasswd: parsed OK"
+visudo -cf /etc/sudoers.d/$USER-nopasswd
+# expect: ".../<user>-nopasswd: parsed OK"
 
 # 4. verify: exits with rc=0 and prints nothing when no password needed
 sudo -n true && echo "passwordless sudo is ON"
@@ -76,7 +83,7 @@ sudo -n true   # must now fail (rc!=0) — password prompt is back
 
 ## Verified
 
-2026-08-25: host state — `/etc/sudoers.d/` contains `admin1-nopasswd`
+2026-08-25: host state — `/etc/sudoers.d/` contains `<user>-nopasswd`
 (31 bytes, root:root, created 2026-08-06), `sudo -n true` → rc=0
 (passwordless active), `/etc/sudoers` standard: `%wheel ALL=(ALL) ALL`
 (password still required for the rest of wheel). Tile added to the repo

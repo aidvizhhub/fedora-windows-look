@@ -1,5 +1,12 @@
 # 12 · Assassin's Creed Odyssey (EMPRESS) + Wine: loader_section deadlock — FIX
 
+<!-- meta
+категория: F-игры-контент
+риск: L2 (переменные окружения Wine; обратимо)
+preflight-гейт: GPU любой (DXVK); Wine + игра (EMPRESS) — личный выбор владельца; гейт F: проверить GPU_VENDOR
+откат: в файле: снять WINEDEBUG/настройки
+-->
+
 Details how to get ACOdyssey (EMPRESS release, standalone, non-Steam) running
 under stock Wine + DXVK when it hangs on the loading screen with
 `loader_section` wait-timeouts. Verified live on Fedora (GNOME + Wayland,

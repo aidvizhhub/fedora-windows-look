@@ -1,5 +1,12 @@
 # 06 · Disk formatting on Fedora
 
+<!-- meta
+категория: C-железо-периферия
+риск: L3 ВСЕГДА (форматирование — уничтожение данных; только с явным подтверждением)
+preflight-гейт: ROOT_FS/диски из preflight (lsblk -f); сначала диагностика «почему не пишется» — часто лечится без форматирования
+откат: в файле: Safety rules; НЕОБХОДИМ backup данных до начала
+-->
+
 Workflow: identify → unmount → format → mount → fstab (if internal) → verify write.
 
 ## Why it matters

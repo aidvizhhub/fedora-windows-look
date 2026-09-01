@@ -1,5 +1,12 @@
 # 01 · Speed up Fedora/GNOME (audit → services → boot → GNOME → kernel)
 
+<!-- meta
+категория: B-производительность
+риск: L1→L2 (шаги 1-3: без sudo/sudo-обратимо) · L3 (шаг 4: кастомное ядро — только после гейта)
+preflight-гейт: VIRT=none (иначе НЕ маскировать qemu-агента); для ядра: CPU_X86_64_V3=yes + SECURE_BOOT=off + NVIDIA=akmods
+откат: в файле: у каждого шага (unmask / grubby --set-default / restore fstab.bak)
+-->
+
 Verified live: boot from ~45s to ~13s, minus ~300–500MB RAM, noticeably snappier
 response — without losing functionality. All steps are reversible (each has a
 rollback command).

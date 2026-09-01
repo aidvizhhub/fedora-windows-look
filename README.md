@@ -7,11 +7,23 @@
 Совместимость: Fedora Workstation, GNOME + Wayland (проверено GNOME 45–50,
 Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/Ubuntu).
 
+## Сценарий «новый ПК» (переезд)
+
+1. Клонируй репозиторий, запусти `bash scripts/preflight.sh` — read-only карта
+   железа/ОС + вердикты по категориям (OK / ADAPT / SKIP).
+2. Выбери категорию из `SKILL.md` (A–G) — дроби: не всё сразу, а куски,
+   от лёгких к тяжёлым (L1 без sudo → L3 с подтверждением).
+3. Каждый шаг по протоколу: preflight-гейт → план (dry-run) → подтверждение →
+   apply → verify → откат записать в локальный журнал переноса (вне git, в репозиторий
+   не попадает).
+4. Правило: референсы — ТОЛЬКО примеры; числа пересчитывай из своего preflight.
+
 ## Что внутри
 
 | Раздел | Файл | О чём |
 |---|---|---|
-| Обзор + маршрут | `SKILL.md` | когда какой раздел, главное правило, быстрый старт |
+| Маршрут и законы | `SKILL.md` | категории A–G, уровни риска L1–L3, протокол шага, «референсы — только примеры» |
+| Preflight | `references/00-preflight.md` | как читать отчёт + таблица гейтов по категориям (главный мост «отчёт → действие») |
 | Ускорение | `references/01-speedup.md` | аудит → службы → загрузка → GNOME → ядро CachyOS + правила питания владельца (профиль performance, экран/сон/затемнение — OFF) |
 | Тёплые цвета | `references/02-warm-colors.md` | Night Light, VCGT-гамма, DDC монитора + макс Гц автоматом (monitors.xml, проверено 144 Гц) |
 | Windows-лук | `references/03-windows-look.md` | тёмная тема, Segoe UI, курсоры, звуки, расширения + установка Telegram (репозиторий Fedora) |
@@ -30,20 +42,23 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 | OpenCode 2 | `references/17-opencode2.md` | AI-кодинг-агент (beta): установка `opencode2` без sudo, первый запуск, план/билд, грабли беты |
 | Camoufox MCP | `references/18-camoufox-mcp.md` | браузер-ресёрч для агента: установка в opencode2, фикс «Unknown tool» (новая сессия), codemode=false |
 | Sudo без пароля | `references/19-sudo-nopasswd.md` | passwordless sudo: ПРАВИЛО «только с согласия владельца», настройка через sudoers.d, проверка visudo, откат, узкая альтернатива |
-| Скрипты | `scripts/` | `audit.sh` (read-only аудит), `apply-zram.sh` (идемпотентный, `--dry-run`), `apply-windows-look.sh` (перенос вида «как на ПК» на другую Fedora: gsettings + ассеты + расширения) |
+| Скрипты | `scripts/` | `preflight.sh` (карта железа/ОС + вердикты, read-only), `audit.sh` (read-only аудит ускорения), `apply-zram.sh` (идемпотентный, `--dry-run`), `apply-windows-look.sh` (перенос вида «как на ПК»: gsettings + ассеты + расширения) |
 
-## Быстрый старт
+## Быстрый старт (новый ПК)
 
 ```bash
-bash scripts/audit.sh                 # аудит, ничего не меняет
-bash scripts/apply-zram.sh --dry-run  # zram: посмотреть план
-bash scripts/apply-zram.sh            # zram: применить (sudo)
+bash scripts/preflight.sh              # 0. карта железа/ОС + вердикты (read-only, ничего не меняет)
+bash scripts/audit.sh                  # спец-аудит ускорения (read-only)
+bash scripts/apply-zram.sh --dry-run   # zram: посмотреть план
+bash scripts/apply-zram.sh             # zram: применить (sudo)
 bash scripts/apply-windows-look.sh --dry-run   # лук «как на ПК»: посмотреть план
 bash scripts/apply-windows-look.sh --assets windows-look-assets.tar.gz  # применить (расширения — sudo)
 bash scripts/apply-windows-look.sh --vpn ~/vpn/сервер.conf  # сходу поднять WireGuard (путь свой, см. 09-vpn-torrents.md)
 ```
 
-Дальше — по `SKILL.md`: цвета → лук → терминалы, каждая секция с откатами.
+Дальше — по `SKILL.md`: выбери категорию (A–G), любой порядок, но от лёгких
+шагов к тяжёлым (L1 → L3), каждый — по протоколу «гейт → план → подтверждение →
+apply → verify → откат». Гейты сверяй с `references/00-preflight.md`.
 
 ## Замечания
 

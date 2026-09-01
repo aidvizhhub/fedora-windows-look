@@ -1,5 +1,12 @@
 # 09 · Self-hosted WireGuard VPN + fast torrents (client + seedbox)
 
+<!-- meta
+категория: E-сеть-удалённый-доступ
+риск: L3 (свой VPS, сетевые правила, сидбокс)
+preflight-гейт: NETWORK_ONLINE=yes + СВОЙ сервер (VPS); без сервера → SKIP (только клиентская часть нужна — см. apply-windows-look.sh --vpn)
+откат: в файле: wg-quick down / удаление конфигов
+-->
+
 Verified live: Fedora 44 (client, NetworkManager + wg-quick) and a small VPS
 server (Ubuntu, 1 vCPU / 2G RAM / 80G disk / ~600 Mbps link). Result: full-tunnel
 VPN with 0% interface errors, torrent port reachable from outside, and an

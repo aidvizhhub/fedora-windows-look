@@ -1,5 +1,12 @@
 # 16 · Keyboard layouts: Russian (RU) + English (US), Windows-style switch
 
+<!-- meta
+категория: D-софт-инструменты
+риск: L1 (gsettings пользователя) · L2 (GDM/консоль — root)
+preflight-гейт: DE=GNOME (или localectl для консоли/TTY)
+откат: в файле: gsettings reset / localectl reset
+-->
+
 Verified live: Fedora (GNOME, Wayland, GNOME 45–50) + `localectl`. Result:
 two input sources (English + Russian), switch by **Alt+Shift** like on
 Windows (GNOME default is Super+Space), same languages in console and on

@@ -1,5 +1,12 @@
 # 08 · Disk swapfile as the OOM safety net (zram + disk combo)
 
+<!-- meta
+категория: B-производительность
+риск: L2 (sudo, файл на диске; обратимо)
+preflight-гейт: RAM_MB=<из preflight> (правило размера по ОЗУ); ROOT_FS=btrfs — особенности (NODATACOW); уже есть zram → комбо
+откат: в файле: swapoff + rm /swapfile
+-->
+
 Verified live: CachyOS (Fedora-based, btrfs on LUKS, 16G RAM). Result: 16G
 swapfile on disk at priority 10 behind zram
 (priority 100) — total swap capacity 24G; Linux degrades gracefully instead

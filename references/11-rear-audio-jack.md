@@ -1,6 +1,13 @@
 # 11 · Rear line-out jack is dead while front works (Realtek HDA pin disabled)
 
-Verified live: Fedora (GNOME, PipeWire + WirePlumber), Realtek ALC887-VD
+<!-- meta
+категория: C-железо-периферия
+риск: L2 (hda-verb + systemd-юнит; обратимо)
+preflight-гейт: AUDIO_CODEC=realtek (кодек/пин — ИЗ preflight, не из примера!)
+откат: в файле: удалить systemd-юнит / пин в 0x00
+-->
+
+Verified live: Fedora (GNOME, PipeWire + WirePlumber), Realtek HDA codec
 (HDA Intel PCH). Symptom: headphones in the **rear green jack** are silent,
 front panel jack works fine; the system "does not see" the rear output. Root
 cause: the rear line-out **pin is disabled in the codec** (`Pin-ctls: 0x00`),
@@ -31,7 +38,7 @@ below — only generic paths and placeholders.
 ```bash
 aplay -l                    # find your analog card (e.g. card 0: HDA Intel PCH)
 ls /dev/snd/hwC*D0          # codec devices: hwC0D0, hwC1D0, ...
-cat /proc/asound/card0/codec#0 | head -2   # Codec: Realtek ALC887-VD
+cat /proc/asound/card0/codec#0 | head -2   # Codec: Realtek HDA (модель в preflight AUDIO_CODEC)
 ```
 
 ### 2. Find the rear line-out pin in the codec dump

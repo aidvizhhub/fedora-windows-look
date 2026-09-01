@@ -1,5 +1,12 @@
 # 17 · OpenCode 2 (beta) — AI coding agent, install & run
 
+<!-- meta
+категория: D-софт-инструменты
+риск: L1 (npm в ~/.local, без sudo)
+preflight-гейт: NETWORK_ONLINE=yes (npm-установка); node/npm присутствуют
+откат: в файле: npm uninstall -g opencode2
+-->
+
 Verified live: Fedora 44, node v22.23.1 / npm 10.9.8, `~/.local` npm
 prefix (no sudo). Result: `opencode2` v0.0.0-beta-18155 installed and
 running as a native binary, side by side with OpenCode 1 — this doc is

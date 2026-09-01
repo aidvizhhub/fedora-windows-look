@@ -1,5 +1,12 @@
 # 10 · OBS Studio: install + optimized local recording (Flatpak, NVENC, CQP, high-FPS)
 
+<!-- meta
+категория: F-игры-контент
+риск: L2 (flatpak + конфиги пульта; обратимо)
+preflight-гейт: GPU_VENDOR=nvidia (NVENC) → ADAPT для amd/intel (VAAPI); SESSION_TYPE=wayland (захват)
+откат: в файле: flatpak uninstall / восстановить конфиги
+-->
+
 Verified live: Fedora 44, OBS Studio 32.2.2 via Flatpak/Flathub, NVIDIA GPU with
 Turing-or-newer NVENC, 1080p display with refresh above 120 Hz. Result: local
 recording at 1920x1080 @ 144 fps, HEVC (NVENC) CQP 20, MKV container, AAC 192
@@ -245,7 +252,7 @@ baking at 60 fps is the 80/20 lever: **2.4× fewer frames** → render drops fro
 
 ### The bake (branding + 60 fps in one pass)
 ```
-VIDEO=src.mkv OUT=out.mkv bash /run/media/admin1/DATA/BROboses/bake/scripts/bake.sh
+VIDEO=src.mkv OUT=out.mkv bash ~/bake/scripts/bake.sh
 ```
 - Script has `-r 60` / `fps=60` in the final pass (one-char switch back to 144).
 - Does in ONE pass: 5-s logo intro (fade), semi-transparent watermark (bottom-right),

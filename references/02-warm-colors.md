@@ -1,5 +1,12 @@
 # 02 · Warm display colors like Windows (GNOME + Wayland)
 
+<!-- meta
+категория: A-внешний-вид
+риск: L1 (Night Light, gsettings, гамма) · L2 (DDC/CI — нужен доступ к i2c)
+preflight-гейт: DE=GNOME или Wayland-сессия; для DDC: GPU_DRIVER=nvidia + MONITOR_INFO=[свой монитор]
+откат: в файле: Rollback (сброс gsettings / dconf)
+-->
+
 Goal: replicate the pleasant, warm Windows-like display look on Fedora
 Workstation (GNOME + Wayland). Windows drivers apply gamma/color corrections;
 Linux does not, so the panel often looks cold and flat.
@@ -116,7 +123,7 @@ display is on another bus.
 
 ## 6. Max refresh rate — GNOME applies it automatically at login
 
-Verified live: monitor ART G24F144 (144 Hz) on DP-1, GNOME Wayland,
+Verified live: monitor with 144 Hz on DP-1, GNOME Wayland,
 1920x1080 @ 143.993. `xrandr` shows the live mode with `*+`:
 `1920x1080    143.88*+` — the max rate IS active, not just "set" somewhere.
 

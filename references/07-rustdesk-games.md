@@ -1,5 +1,12 @@
 # 07 · RustDesk for games on Wayland + NVIDIA
 
+<!-- meta
+категория: F-игры-контент
+риск: L2 (dconf/переменные окружения; обратимо)
+preflight-гейт: GPU_VENDOR=nvidia + SESSION_TYPE=wayland (иначе ADAPT: другой путь, гейт F в 00-preflight.md)
+откат: в файле: у шагов — снятие переменных/настроек
+-->
+
 Workflow: fix black screen (direct scanout + Wine virtual desktop) → boost FPS
 (60–120, hardware codec) → verify with the remote partner.
 

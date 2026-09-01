@@ -1,5 +1,12 @@
 # 04 · Terminals like Windows Terminal (Alacritty, WezTerm, Konsole)
 
+<!-- meta
+категория: A-внешний-вид
+риск: L1 (пакеты/конфиги, без системных прав)
+preflight-гейт: DE любой; пакеты: dnf (Fedora) / pacman / apt — репозитории свои
+откат: в файле: удаление пакетов / восстановление конфигов
+-->
+
 Windows Terminal look: dark background, Cascadia Mono, WT color schemes —
 on three different terminals: Alacritty, WezTerm (GNOME world) and Konsole (KDE).
 

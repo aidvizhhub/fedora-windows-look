@@ -1,5 +1,12 @@
 # 03 · Windows 11 look: dark theme, fonts, icons, cursors, sounds, extensions
 
+<!-- meta
+категория: A-внешний-вид
+риск: L1 (gsettings, шрифты — без sudo) · L2 (расширения EGO: sudo + сеть)
+preflight-гейт: DE=GNOME + SHELL_VER=45+ (иначе ADAPT: для Cinnamon/Mint есть отдельный раздел; скрипт apply-windows-look.sh)
+откат: в файле: Rollback; скрипт --dry-run перед apply
+-->
+
 Details "how to make it look like Windows" on top of the warm-color core
 (`02-warm-colors.md`). Read when the task needs the Windows look: dark theme,
 fonts, icons, cursors, sounds, extensions, wallpaper.

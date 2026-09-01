@@ -1,5 +1,12 @@
 # 14 · Global hotkeys on Wayland: bind ANY action in ANY app (universal)
 
+<!-- meta
+категория: E-сеть-удалённый-доступ
+риск: L1 (портал/dconf) · L2 (WebSocket-мост) · L2→L3 (evdev-демон — raw-доступ)
+preflight-гейт: SESSION_TYPE=wayland (X11 → нативные хоткеи, ADAPT)
+откат: в файле: удалить dconf-ключи / остановить демон
+-->
+
 Verified live: Fedora, GNOME/Wayland. Pattern: an app that needs global
 hotkeys (OBS, Discord PTT, game commands) can't hear keys without focus —
 Wayland blocks it. The universal fix has three tiers; pick by effort.

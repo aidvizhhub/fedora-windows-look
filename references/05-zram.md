@@ -1,5 +1,12 @@
 # 05 · zram swap optimization (universal)
 
+<!-- meta
+категория: B-производительность
+риск: L2 (sudo, systemd-конфиг; обратимо)
+preflight-гейт: RAM_MB=<из preflight, размер=RAM/2>; система systemd (zram-generator) или Debian/Ubuntu (zram-tools)
+откат: в файле: Safety + скрипт; откат: rm /etc/systemd/zram-generator.conf
+-->
+
 Verified: Fedora (systemd-zram-generator, 16G RAM). Works on any systemd-Linux.
 Result: zram RAM/2 on zstd (~3.4:1), swappiness 150, page-cluster 0 — cold
 pages are compressed in RAM, free memory goes to page cache.

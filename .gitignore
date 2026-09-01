@@ -1,6 +1,9 @@
 # Local configs
 *.local.conf
 
+# Local specs & progress (not for public GitHub)
+.kiro/
+
 # OS junk
 .DS_Store
 Thumbs.db

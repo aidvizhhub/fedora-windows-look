@@ -1,5 +1,12 @@
 # 15 · Video players: VLC + Celluloid install & the sandbox "no access" fix
 
+<!-- meta
+категория: C-железо-периферия
+риск: L1 (flatpak для пользователя; без sudo)
+preflight-гейт: flatpak (Flathub) доступен; NETWORK_ONLINE=yes
+откат: в файле: flatpak uninstall / flatpak override --unset
+-->
+
 Verified live: Fedora (GNOME, Wayland), Flathub. Result: two players —
 VLC (universal) and Celluloid (creator-friendly, mpv engine). Celluloid
 could not open local MKV files out of the box — root cause was the
