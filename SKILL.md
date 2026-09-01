@@ -1,6 +1,6 @@
 ---
 name: fedora-windows-look
-description: "Комплект для безопасного переезда на новый ПК + настройка Fedora/GNOME под Windows-лук и скорость. Использовать, когда нужно: ускорить Fedora/GNOME (медленная загрузка, какие службы отключить, кастомное ядро), тёплые цвета дисплея как на Windows, вид «как на винде» (тёмная тема, Segoe UI, курсоры, звуки, панель), терминалы как Windows Terminal, zram/своп/подкачка, форматирование и монтирование дисков, RustDesk для игр (чёрный экран, FPS), WireGuard VPN + торренты, OBS Studio запись, мёртвый задний аудиоразъём (hda-verb), AC Odyssey под Wine, хоткеи на Wayland (OBS/глобальные), видеоплееры VLC/Celluloid, RU/EN раскладки, opencode2, Camoufox MCP, sudo без пароля. Всегда сначала preflight (scripts/preflight.sh), референсы — только примеры."
+description: "Комплект для безопасного переезда на новый ПК + настройка Fedora/GNOME под Windows-лук и скорость. Использовать, когда нужно: ускорить Fedora/GNOME (медленная загрузка, какие службы отключить, кастомное ядро), тёплые цвета дисплея как на Windows, вид «как на винде» (тёмная тема, Segoe UI, курсоры, звуки, панель), терминалы как Windows Terminal, zram/своп/подкачка, форматирование и монтирование дисков, RustDesk для игр (чёрный экран, FPS), WireGuard VPN + торренты, OBS Studio запись, мёртвый задний аудиоразъём (hda-verb), AC Odyssey под Wine, хоткеи на Wayland (OBS/глобальные), видеоплееры VLC/Celluloid, RU/EN раскладки, opencode2, sudo без пароля. Всегда сначала preflight (scripts/preflight.sh), референсы — только примеры."
 ---
 
 # Fedora → Windows Look & Performance — комплект «переезд на новый ПК»
@@ -51,7 +51,7 @@ bash scripts/apply-windows-look.sh --dry-run  # лук «как на винде�
 | A | Внешний вид | L1→L2 | 02, 03, 04 (+01 шаг 3) | DE=GNOME, SHELL_VER=45+, GPU/монитор для DDC |
 | B | Производительность | L1→L3 | 01, 05, 08 | VIRT=none; ядро: CPU_X86_64_V3=yes, SECURE_BOOT=off; RAM_MB |
 | C | Железо и периферия | L2→L3 | 06, 11, 15 | AUDIO_CODEC=realtek (11); диски — только с подтверждением |
-| D | Софт и инструменты | L1→L2 | 16, 17, 18 | NETWORK_ONLINE=yes (17/18); DE=GNOME (16 GDM) |
+| D | Софт и инструменты | L1→L2 | 16, 17 | NETWORK_ONLINE=yes (17); DE=GNOME (16 GDM) |
 | E | Сеть и удалённый доступ | L2→L3 | 09, 14, 19 | NETWORK_ONLINE + свой VPS (09); SESSION_TYPE=wayland (14) |
 | F | Игры и контент | L1→L3 | 07, 10, 12, 13 | GPU_VENDOR=nvidia (07, 10 NVENC); SESSION_TYPE=wayland (13) |
 | G | Аудит и статус | L0 (только чтение) | 00-preflight, audit.sh | — |
@@ -94,7 +94,6 @@ bash scripts/apply-windows-look.sh --dry-run  # лук «как на винде�
 | «какой видеоплеер поставить», «Celluloid не видит файлы» | C · `references/15-video-players-vlc-celluloid.md` |
 | «добавь русскую раскладку», «переключение как в Windows», «Alt+Shift» | D · `references/16-keyboard-layouts.md` |
 | «поставь opencode», «opencode2 не работает», «AI-агент для кода» | D · `references/17-opencode2.md` |
-| «camoufox Unknown tool», «MCP отвалился», «ресёрч через кауфми» | D · `references/18-camoufox-mcp.md` |
 | «sudo без пароля», «sudo спрашивает пароль в скрипте» | E · `references/19-sudo-nopasswd.md` (L3, только с согласия!) |
 
 **Когда НЕ использовать:** серверы (там свои правила — не трогать
@@ -107,7 +106,7 @@ fedora-windows-look/
 ├── SKILL.md                    # этот файл: законы, категории, протокол
 ├── references/
 │   ├── 00-preflight.md         # как читать preflight-отчёт + таблица гейтов (НЕ ПРОПУСКАТЬ)
-│   └── 01..19-*.md             # проверенные инструкции; шапка <!-- meta --> = категория/риск/гейт/откат
+│   └── 01..17,19-*.md          # проверенные инструкции; шапка <!-- meta --> = категория/риск/гейт/откат
 ├── scripts/
 │   ├── preflight.sh            # read-only карта железа/ОС + вердикты (шаг 0 ЛЮБОГО сценария)
 │   ├── audit.sh                # спец-аудит ускорения (read-only)

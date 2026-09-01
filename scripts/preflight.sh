@@ -221,7 +221,7 @@ esac
 
 # D. Софт и инструменты
 [ "$NET" = yes ] && verdict D-софт-инструменты OK "NETWORK_ONLINE=$NET" \
-                  || verdict D-софт-инструменты SKIP "NETWORK_ONLINE=$NET: 17/18 требуют сети (npm/скачивание)"
+                  || verdict D-софт-инструменты SKIP "NETWORK_ONLINE=$NET: 17 требует сети (npm-установка)"
 
 # E. Сеть и удалённый доступ
 if [ "$NET" != yes ]; then

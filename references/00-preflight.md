@@ -53,7 +53,7 @@ bash scripts/preflight.sh --deep   # + sudo-факты (только чтени�
 | A. Внешний вид | L1→L2 | DE=GNOME (03, 16); GPU/монитор (02 DDC) | другой DE → ADAPT (в 03 есть Cinnamon) | 02, 03, 04 (+01 шаг 3) |
 | B. Производительность | L1→L3 | VIRT=none (маски); CPU_X86_64_V3+SECURE_BOOT (ядро); RAM_MB (zram) | VIRT=kvm → не маскировать qemu-агент; ядро → SKIP, дать шаги 1-3 | 01, 05, 08 |
 | C. Железо и периферия | L2→L3 | AUDIO_CODEC=realtek (11); диски/ROOT_FS (06) | не realtek → ADAPT (пути другие); диски → L3, только с согласием | 06, 11, 15 |
-| D. Софт и инструменты | L1→L2 | NETWORK_ONLINE=yes (17, 18); DE=GNOME (16 GDM) | оффлайн → SKIP до сети | 16, 17, 18 |
+| D. Софт и инструменты | L1→L2 | NETWORK_ONLINE=yes (17); DE=GNOME (16 GDM) | оффлайн → SKIP до сети | 16, 17 |
 | E. Сеть и удалённый доступ | L2→L3 | NETWORK_ONLINE + свой VPS (09); SESSION_TYPE=wayland (14); согласие (19) | нет VPS → SKIP 09; X11 → ADAPT 14 | 09, 14, 19 |
 | F. Игры и контент | L1→L3 | GPU_VENDOR=nvidia (07, 10 NVENC); SESSION_TYPE=wayland (13; 07) | amd/intel → ADAPT (VAAPI); X11 → ADAPT 13 | 07, 10, 12, 13 |
 | G. Аудит и статус | L0 | — | — | preflight.sh, audit.sh |

@@ -40,7 +40,6 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 | Видеоплееры | `references/15-video-players-vlc-celluloid.md` | VLC (универсал) + Celluloid (блогер): установка + фикс flatpak-песочницы «не видит файлы» |
 | Раскладки | `references/16-keyboard-layouts.md` | русский + английский: установка RU/EN, переключение как в Windows (Alt+Shift), консоль + экран входа |
 | OpenCode 2 | `references/17-opencode2.md` | AI-кодинг-агент (beta): установка `opencode2` без sudo, первый запуск, план/билд, грабли беты |
-| Camoufox MCP | `references/18-camoufox-mcp.md` | браузер-ресёрч для агента: установка в opencode2, фикс «Unknown tool» (новая сессия), codemode=false |
 | Sudo без пароля | `references/19-sudo-nopasswd.md` | passwordless sudo: ПРАВИЛО «только с согласия владельца», настройка через sudoers.d, проверка visudo, откат, узкая альтернатива |
 | Скрипты | `scripts/` | `preflight.sh` (карта железа/ОС + вердикты, read-only), `audit.sh` (read-only аудит ускорения), `apply-zram.sh` (идемпотентный, `--dry-run`), `apply-windows-look.sh` (перенос вида «как на ПК»: gsettings + ассеты + расширения) |
 
