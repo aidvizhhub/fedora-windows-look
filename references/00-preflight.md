@@ -26,13 +26,18 @@ bash scripts/preflight.sh --deep   # + sudo-факты (только чтени�
 | `GPU_VENDOR`, `GPU_DRIVER` | lspci/lspci -k/nvidia-smi | nvidia / amd / intel | DDC, NVENC/VAAPI, direct scanout |
 | `RAM_MB` | /proc/meminfo | 16384 | zram=RAM/2, правило swapfile |
 | `CPU_X86_64_V3` | ld-linux --help | yes/no | гейт CachyOS ядра |
-| `SECURE_BOOT` | mokutil --sb-state | on/off/unknown | гейт кастомного ядра |
+| `SECURE_BOOT` | efivar SecureBoot (UEFI) / `mokutil` / BIOS | on / off / off (legacy BIOS) | гейт кастомного ядра |
 | `VIRT` | systemd-detect-virt | none / kvm / oracle | маски служб (qemu-guest-agent и др.) |
 | `ROOT_FS` | findmnt / | btrfs / ext4 / xfs | swapfile-особенности, fstab |
 | `SWAP_STATUS` | swapon + zramctl | zram / disk / both / none | что уже сделано |
 | `SHELL_VER` | gnome-shell --version | 50 | совместимость расширений EGO |
 | `AUDIO_CODEC` | /proc/asound codec# | Realtek HDA (модель — из preflight) | фикс заднего разъёма |
-| `MONITOR_INFO` | udevadm / drm / xrandr | 144Гц монитор на DP-1 | DDC/CI, частота, гамма |
+| `AUDIO_DEFAULT_SINK` | pactl get-default-sink | …analog-stereo | какой выход реально играет |
+| `AUDIO_SINKS` | pactl list short sinks | 2 (HDMI + аналог) | >1 → риск ref 20 (RustDesk слушает не тот) |
+| `AUDIO_AUTOMUTE` | amixer 'Auto-Mute Mode' | Disabled / Enabled / NA | Enabled → ref 11 БОЛЕЗНЬ №5 |
+| `RUSTDESK` | systemctl is-active rustdesk | active / installed / absent | ref 20 (звук у партнёра) |
+| `MONITOR_INFO` | `/sys/class/drm/*/status` (connected) | card0-DP-1 (только подключённые) | DDC/CI, частота, гамма |
+| `MONITOR_MODEL` | sysfs EDID → ddcutil → monitors.xml | ART G24F144 (напр.) | идентификация монитора (DDC/EDID, NVIDIA в sysfs EDID не отдаёт) |
 | `NETWORK_ONLINE` | nmcli/ping | yes/no | VPN, npm, скачивания |
 
 ## Правило «референсы — только примеры»

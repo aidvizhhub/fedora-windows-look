@@ -327,3 +327,98 @@ sudo systemctl enable --now rear-lineout-watch.timer
 Проверено на этой машине (24 авг 2026): пин 0x14 → 0x40, порт
 analog-output-lineout, sink RUNNING, paplay bell.oga играет ✅; таймер
 активен (NEXT=13:21), юнит inactive между тиками, пин держится ✅.
+
+## БОЛЕЗНЬ №5: передний и задний играют, но НЕ одновременно (Auto-Mute) — РЕШЕНО ✅
+
+СИМПТОМ: оба разъёма по отдельности живые — воткнул в морду, играет; воткнул
+в задний зелёный, играет. Но **вместе — никак**: вставил что-то в передний →
+задний молчит (или наоборот). «Проблема давняя», тянется годами. Это НЕ мёртвый
+пин из БОЛЕЗНИ №1 — пин тут включён, беда в другом месте.
+
+ПРИЧИНА: у Realtek есть **Auto-Mute Mode**. Пока он `Enabled`, кодек работает
+по логике «или-или»: при втыкании в морду он глушит задний зелёный (и наоборот)
+— это jack-detection, а не поломка. В Windows панель Realtek просто прячет это
+за галочкой «Отключать задние разъёмы при подключении передних», а на Linux
+generic-парсер оставляет дефолт `Enabled`. Проверка (по ИМЕНИ карты, не номеру):
+
+```bash
+amixer -c {CARD_ID} get 'Auto-Mute Mode'
+# Item0: 'Enabled'  → 🔴 это баг
+# Item0: 'Disabled' → ✅ оба разъёма играют разом
+```
+
+ГРАБЛИ распознавания: не путай с БОЛЕЗНЬЮ №1. Как отличить:
+- **мёртвый пин (№1)** — задний `Pin-ctls: 0x00` ВСЕГДА, хоть морда пустая;
+- **Auto-Mute (№5)** — задний `Pin-ctls: 0x00` ТОЛЬКО пока что-то в переднем.
+  Вытащи из морды → задний сам вернётся в `0x40`. Втыкай снова → `0x00`.
+
+Важно: на ALC887 с generic-парсером канонных ручек `Independent HP` и
+`Multi-Stream Mode` в микшере НЕТ (это проприетарные фичи Windows-драйвера).
+Но для «оба играют одно и то же» они и не нужны: оба пина (`0x14` задний
+line-out, `0x1b` передний HP) кормятся с ОДНОГО ЦАПа, поэтому при выключенном
+Auto-Mute оба разъёма поют одновременно одинаковым стерео.
+
+ЛЕЧЕНИЕ (вживую, сразу слышно):
+
+```bash
+amixer -c {CARD_ID} set 'Auto-Mute Mode' Disabled
+# проверить:
+amixer -c {CARD_ID} get 'Auto-Mute Mode'     # → Item0: 'Disabled'
+# оба пина должны быть включены РАЗОМ:
+#   зад  0x14: Pin-ctls: 0x40: OUT
+#   перед 0x1b: Pin-ctls: 0xc0: OUT HP
+```
+
+ЛЕЧЕНИЕ (навсегда) — ДВА слоя, оба применяются на этой машине:
+
+1. **Drop-in к уже существующему юниту** `rear-lineout-fix.service` (он и так
+   дёргается таймером каждые 5 мин + на boot). Создать
+   `/etc/systemd/system/rear-lineout-fix.service.d/auto-mute.conf`:
+   ```ini
+   [Service]
+   ExecStartPost=/bin/sh -c '/usr/bin/amixer -c PCH set "Auto-Mute Mode" Disabled'
+   ```
+   `sudo systemctl daemon-reload` — drop-in подхватится, родной юнит не трогаем.
+   (Снять = удалить файл + `daemon-reload`.)
+2. **ALSA-состояние** — чтобы держалось и на раннем старте, до тика таймера:
+   ```bash
+   sudo alsactl store      # в /var/lib/alsa/asound.state будет value Disabled
+   ```
+
+ГРАБЛИ (проверено):
+1. **Карта по ИМЕНИ, не по номеру.** `amixer -c PCH` (id карты), а не `-c1`:
+   USB-микрофон (SoloCast) может уехать в `card0`, PCI-звук — в `card1`.
+   `/proc/asound/PCH` + `amixer -c PCH` переживают перестановку.
+2. **Юнит-цепочка = best place.** Не плодим отдельный юнит: `rear-lineout-fix`
+   уже решает БОЛЕЗНЬ №1 и уже в таймере — Auto-Mute дожимаем тем же прогоном.
+3. **`ExecStartPost` в oneshot — ок**, после `ExecStart` (hda-verb, с `exec`)
+   отрабатывает штатно; `ExecMainStatus=0`, в журнале видно вывод `amixer`.
+4. **Не путать с портами PipeWire.** «Line Out» = задний зелёный,
+   «Headphones» = передний. После выключения Auto-Mute оба разъёма звучат
+   одновременно независимо от выбранного порта, т.к. оба пина активны.
+5. **Разные треки в морду и зад — нельзя.** Это зеркало с одного ЦАПа, не
+   два независимых потока. Кому надо разное — это уже Multi-Stream, и он
+   на Linux generic-парсере ALC887 недоступен (нужен vendor-драйвер).
+
+ОТКАТ:
+```bash
+sudo rm /etc/systemd/system/rear-lineout-fix.service.d/auto-mute.conf
+sudo systemctl daemon-reload
+amixer -c {CARD_ID} set 'Auto-Mute Mode' Enabled
+sudo alsactl store
+```
+
+ПРОВЕРЕНО на этой машине (26 сен 2026, Realtek ALC887-VD, HDA Intel PCH,
+Fedora + PipeWire/WirePlumber): `Auto-Mute Mode` `Enabled → Disabled`;
+оба пина разом `0x14: 0x40 OUT` + `0x1b: 0xc0 OUT HP`; sink IDLE (не
+SUSPENDED); юнит отработал `ExecMainStatus=0`; drop-in виден в
+`systemctl cat rear-lineout-fix.service`; `alsactl store` → `value Disabled` ✅.
+
+## References (доп. к №5)
+
+- reddit.com/r/linuxquestions — «front and rear audio jacks not working at
+  the same time»: Realtek Auto-Mute Mode = Enabled (кanonical fix: set Disabled).
+- wiki.archlinux.org/title/Advanced_Linux_Sound_Architecture — HDA Auto-Mute,
+  контролы карты (`amixer -c`, `Auto-Mute Mode`).
+- bbs.archlinux.org — ALC887/ALC892: «both front and rear simultaneously»
+  через отключение Auto-Mute; Multi-Stream на Linux generic — недоступен.

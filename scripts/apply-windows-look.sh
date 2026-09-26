@@ -3,7 +3,9 @@
 # Canon: references/03-windows-look.md (verified on the main machine, Fedora 44, GNOME 50).
 # Idempotent: safe to run again. Use --dry-run to preview only.
 # Usage: bash apply-windows-look.sh [--dry-run] [--assets /path/to/windows-look-assets.tar.gz | --assets /tmp/...]
-set -u
+set -euo pipefail
+
+usage(){ sed -n '2,5p' "$0"; }
 
 DRY=0; ASSETS=""; VPN_CONF=""
 while [[ $# -gt 0 ]]; do
@@ -11,12 +13,12 @@ while [[ $# -gt 0 ]]; do
     --dry-run) DRY=1; shift ;;
     --assets) ASSETS="${2:-}"; shift 2 ;;
     --vpn) VPN_CONF="${2:-}"; shift 2 ;;
+    -h|--help) usage; exit 0 ;;
     *) shift ;;
   esac
 done
 
 log(){ echo "[look] $*"; }
-doit(){ if [ "$DRY" = 1 ]; then log "DRY: $*"; else eval "$*"; fi; }
 # WireGuard: setup on request, no hardcoded paths (full guide: references/09-vpn-torrents.md)
 setup_vpn(){
   local conf="$1" iface
@@ -33,15 +35,15 @@ setup_vpn(){
     sudo chown root:root "/etc/wireguard/$iface.conf"
     sudo chmod 600 "/etc/wireguard/$iface.conf"
     sudo wg-quick up "$iface"
-    sudo systemctl enable "wg-quick@$iface" >/dev/null 2>&1
-    sudo wg show 2>/dev/null | head -8
+    sudo systemctl enable "wg-quick@$iface" >/dev/null 2>&1 || true
+    sudo wg show 2>/dev/null | head -8 || true
     log "VPN: UP ✅ (auto-start on boot: enable). Down+remove:"
     log "  sudo wg-quick down $iface && sudo systemctl disable wg-quick@$iface && sudo rm /etc/wireguard/$iface.conf"
   fi
 }
 
 # 0. Facts
-SHELL_VER=$(gnome-shell --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | cut -d. -f1)
+SHELL_VER=$(gnome-shell --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | cut -d. -f1 || true)
 log "GNOME shell: ${SHELL_VER:-?} (needs 45+)"
 log "OS: $(grep -E '^(NAME|VERSION_ID)=' /etc/os-release 2>/dev/null | tr '\n' ' ')"
 
@@ -56,7 +58,11 @@ if [ -n "$MISSING" ]; then
   if [ "$DRY" = 1 ]; then
     log "DRY: sudo dnf install -y$MISSING"
   else
-    if sudo dnf install -y $MISSING 2>&1 | grep -qiE "no package available|nothing provides"; then
+    OUT=""
+    if ! OUT=$(sudo dnf install -y $MISSING 2>&1); then
+      log "WARN: dnf reported a problem installing:$MISSING"
+    fi
+    if grep -qiE "no package available|nothing provides" <<<"$OUT"; then
       log "WARN: some of$MISSING not found in current repos — check dnf history for the exact ones"
     fi
   fi
@@ -67,7 +73,7 @@ log "NOTE: dash-to-panel/arcmenu/blur-my-shell/ding do NOT exist as RPMs —"
 log "      they are installed from extensions.gnome.org (phase 3 below)."
 
 # 1. gsettings — the whole "look" (no sudo, safe)
-G(){ gsettings set "$1" "$2" 2>/dev/null; }
+G(){ gsettings set "$1" "$2" 2>/dev/null || true; }
 if [ "$DRY" = 1 ]; then
   log "DRY: 30+ gsettings (theme/fonts/cursor/icon/sound/panel) — skipped"
 else
@@ -116,7 +122,7 @@ if [ -n "$ASSETS" ] && [ -f "$ASSETS" ]; then
   log "unpacking assets from $ASSETS"
   if [ "$DRY" = 1 ]; then log "DRY: tar xzf"; else
     tar xzf "$ASSETS" -C "$HOME"
-    fc-cache -f "$HOME/.local/share/fonts" 2>/dev/null
+    fc-cache -f "$HOME/.local/share/fonts" 2>/dev/null || true
     log "assets unpacked + font cache rebuilt"
   fi
 else
@@ -139,15 +145,16 @@ for uuid in "${!EXT[@]}"; do
   if [ "$DRY" = 1 ]; then log "DRY: would download+install $uuid"; continue; fi
   zip="/tmp/${uuid}.shell-extension.zip"
   pk=$(curl -s "https://extensions.gnome.org/extension-info/?uuid=${uuid}&shell_version=${SHELL_VER}" \
-        | grep -o '"pk":[0-9]*' | head -1 | cut -d: -f2)
+        | grep -o '"pk":[0-9]*' | head -1 | cut -d: -f2 || true)
   if [ -z "$pk" ]; then log "no pk for $uuid on shell $SHELL_VER — install manually (references/03 §4)"; continue; fi
   curl -sL -o "$zip" "https://extensions.gnome.org/download-extension/${uuid}.shell-extension.zip?version_tag=${pk}" || { log "download failed: $uuid"; continue; }
   sudo mkdir -p "/usr/share/gnome-shell/extensions/$uuid"
-  sudo unzip -qo "$zip" -d "/usr/share/gnome-shell/extensions/$uuid" 2>/dev/null
-  sudo restorecon -R "/usr/share/gnome-shell/extensions/$uuid" 2>/dev/null
+  if ! sudo unzip -qo "$zip" -d "/usr/share/gnome-shell/extensions/$uuid" 2>/dev/null; then
+    log "unzip failed for $uuid — skip"; rm -f "$zip"; continue
+  fi
+  sudo restorecon -R "/usr/share/gnome-shell/extensions/$uuid" 2>/dev/null || true
   sudo chmod -R a+rX "/usr/share/gnome-shell/extensions/$uuid"
-  sudo glib-compile-schemas "/usr/share/gnome-shell/extensions/$uuid/schemas" 2>/dev/null
-  gsettings set "$uuid.schemas" dummy 2>/dev/null  # warm schema cache path (harmless)
+  sudo glib-compile-schemas "/usr/share/gnome-shell/extensions/$uuid/schemas" 2>/dev/null || true
   rm -f "$zip"
   log "installed $uuid — relaunch gsettings of its keys after login"
 done
@@ -158,7 +165,7 @@ log "Then check: gnome-extensions info <uuid>  (should be ACTIVE)"
 # 4. WireGuard — only if the owner asks (--vpn /path/to/xxx.conf)
 if [ -n "$VPN_CONF" ]; then
   log "WireGuard requested via --vpn"
-  setup_vpn "$VPN_CONF"
+  setup_vpn "$VPN_CONF" || true
 else
   log "VPN: skipped (no --vpn flag). Full WireGuard guide: references/09-vpn-torrents.md"
 fi

@@ -4,6 +4,7 @@
 # Сверяй результат с references/00-preflight.md (таблица гейтов по категориям).
 # Usage: bash scripts/preflight.sh [--json] [--deep]
 set -uo pipefail
+export LC_ALL=C   # стабильный разбор подписей (pactl/nvidia-smi/lspci) на любой локали
 
 JSON=0; DEEP=0
 for a in "$@"; do
@@ -16,7 +17,6 @@ for a in "$@"; do
 done
 
 K=()   # КЛЮЧ=VALUE
-V=()   # КЛЮЧ=VALUE|группа (для вердиктов)
 
 say(){ [ "$JSON" = 0 ] && printf '[preflight] %s\n' "$*"; }
 kv(){ K+=("$1=$2"); say "$1=$2"; }
@@ -86,19 +86,27 @@ command -v /lib64/ld-linux-x86-64.so.2 >/dev/null 2>&1 && \
   /lib64/ld-linux-x86-64.so.2 --help 2>/dev/null | grep -q 'x86-64-v3' && V3=yes || V3=no
 kv "CPU_X86_64_V3" "$V3"; jline "CPU_X86_64_V3" "$V3"
 
-# SECURE_BOOT
+# SECURE_BOOT (Secure Boot существует ТОЛЬКО в UEFI)
 SB=UNKNOWN
-if command -v mokutil >/dev/null 2>&1; then
-  SB_OUT=$(mokutil --sb-state 2>/dev/null | head -1 || true)
-  if echo "$SB_OUT" | grep -qiE 'secure boot.*enabled'; then
-    SB=on
-  elif echo "$SB_OUT" | grep -qiE 'secure boot.*disabled|not enabled'; then
-    SB=off
-  else
-    SB="unknown (${SB_OUT:-пустой вывод mokutil})"
-  fi
+if [ ! -d /sys/firmware/efi ]; then
+  SB="off (legacy BIOS)"
 else
-  SB=no-mokutil
+  SBVAR=$(ls /sys/firmware/efi/efivars/SecureBoot-* 2>/dev/null | head -1 || true)
+  if [ -n "$SBVAR" ]; then
+    SBV=$(od -An -tu1 -j4 -N1 "$SBVAR" 2>/dev/null | tr -d ' ' || true)
+    case "$SBV" in 1) SB=on ;; 0) SB=off ;; *) SB="unknown (efivar)" ;; esac
+  elif command -v mokutil >/dev/null 2>&1; then
+    SB_OUT=$(mokutil --sb-state 2>/dev/null | head -1 || true)
+    if echo "$SB_OUT" | grep -qiE 'secure boot.*enabled'; then
+      SB=on
+    elif echo "$SB_OUT" | grep -qiE 'secure boot.*disabled|not enabled'; then
+      SB=off
+    else
+      SB="unknown (${SB_OUT:-пустой вывод mokutil})"
+    fi
+  else
+    SB=no-mokutil
+  fi
 fi
 kv "SECURE_BOOT" "$SB"; jline "SECURE_BOOT" "$SB"
 
@@ -149,25 +157,94 @@ for f in /proc/asound/card*/codec#*; do
 done
 kv "AUDIO_CODEC" "$AUDIO_CODEC"; jline "AUDIO_CODEC" "$AUDIO_CODEC"
 
-# MONITOR_INFO
+# Аудио-обвязка для референсов 11/20: дефолтный выход, сколько выходов,
+# Auto-Mute (11 №5) и наличие RustDesk (20).
+AUDIO_DEFAULT_SINK=UNKNOWN
+AUDIO_SINKS=UNKNOWN
+AUDIO_AUTOMUTE=NA
+RUSTDESK=absent
+if command -v pactl >/dev/null 2>&1; then
+  AUDIO_DEFAULT_SINK=$(pactl get-default-sink 2>/dev/null || true)
+  [ -z "$AUDIO_DEFAULT_SINK" ] && AUDIO_DEFAULT_SINK=$(LC_ALL=C pactl info 2>/dev/null | awk -F': ' '/Default Sink/{print $2; exit}')
+  [ -z "$AUDIO_DEFAULT_SINK" ] && AUDIO_DEFAULT_SINK=UNKNOWN
+  AUDIO_SINKS=$(pactl list short sinks 2>/dev/null | wc -l | tr -d ' ')
+else
+  AUDIO_DEFAULT_SINK=no-pactl; AUDIO_SINKS=no-pactl
+fi
+if command -v amixer >/dev/null 2>&1; then
+  for n in $(sed -n 's/^ *\([0-9]\+\) \[.*/\1/p' /proc/asound/cards 2>/dev/null); do
+    v=$(amixer -c "$n" get 'Auto-Mute Mode' 2>/dev/null | sed -n "s/.*Item0: '\([^']*\)'.*/\1/p")
+    [ -n "$v" ] && { AUDIO_AUTOMUTE="$v"; break; }
+  done
+fi
+if command -v rustdesk >/dev/null 2>&1 || [ -x /usr/bin/rustdesk ]; then
+  RUSTDESK=installed
+  systemctl is-active rustdesk >/dev/null 2>&1 && RUSTDESK=active
+fi
+kv "AUDIO_DEFAULT_SINK" "$AUDIO_DEFAULT_SINK"; jline "AUDIO_DEFAULT_SINK" "$AUDIO_DEFAULT_SINK"
+kv "AUDIO_SINKS" "$AUDIO_SINKS"; jline "AUDIO_SINKS" "$AUDIO_SINKS"
+kv "AUDIO_AUTOMUTE" "$AUDIO_AUTOMUTE"; jline "AUDIO_AUTOMUTE" "$AUDIO_AUTOMUTE"
+kv "RUSTDESK" "$RUSTDESK"; jline "RUSTDESK" "$RUSTDESK"
+
+# MONITOR_INFO — только РЕАЛЬНО подключённые коннекторы (status=connected)
 MONITOR_INFO=UNKNOWN
 if [ -d /sys/class/drm ]; then
-  CONNECTED=$(ls /sys/class/drm/ 2>/dev/null | grep -E '^card[0-9]+-[^0-9]' | head -3 | tr '\n' ',' | sed 's/,$//' || true)
+  CONNECTED=$(for s in /sys/class/drm/card[0-9]*-*/status; do
+                [ -r "$s" ] || continue
+                [ "$(cat "$s" 2>/dev/null)" = connected ] || continue
+                basename "$(dirname "$s")"
+              done | head -4 | tr '\n' ',' | sed 's/,$//' || true)
   [ -n "$CONNECTED" ] && MONITOR_INFO="$CONNECTED"
 fi
 kv "MONITOR_INFO" "$MONITOR_INFO"; jline "MONITOR_INFO" "$MONITOR_INFO"
-# Модель монитора из EDID (первый подключённый; строки-маркеры в 54..71 байтах)
-if command -v strings >/dev/null 2>&1; then
-  EDID_MODEL=""
+
+# MONITOR_MODEL — лесенка источников (NVIDIA-проприетарный в sysfs EDID НЕ отдаёт!):
+#   1) sysfs EDID (Intel/AMD/nouveau) — корректный разбор дескриптора 0xFC
+#   2) ddcutil detect (DDC/CI; ставится набором 02-warm-colors)
+#   3) ~/.config/monitors.xml (GNOME)
+edid_vendor(){ # bytes 8-9 -> PNP-код из 3 букв (по 5 бит на букву)
+  local v l1 l2 l3
+  v=$(od -An -tx1 -j8 -N2 "$1" 2>/dev/null | tr -d ' \n'); [ -n "$v" ] || return 1
+  v=$((16#$v)); l1=$(((v>>10)&0x1f)); l2=$(((v>>5)&0x1f)); l3=$((v&0x1f))
+  { [ "$l1" -ge 1 ] && [ "$l1" -le 26 ]; } || return 1
+  printf "\\$(printf '%03o' $((64+l1)))\\$(printf '%03o' $((64+l2)))\\$(printf '%03o' $((64+l3)))"
+}
+edid_text(){ # $1=file $2=tag (0xfc=name, 0xff=serial) -> текст до терминатора 0x0a
+  local off hx t
+  [ "$(od -An -tx1 -N8 "$1" 2>/dev/null | tr -d ' \n')" = "00ffffffffffff00" ] || return 1
+  for off in 54 72 90 108; do
+    [ "$(od -An -tx1 -j $((off+3)) -N1 "$1" 2>/dev/null | tr -d ' \n')" = "$2" ] || continue
+    hx=$(od -An -tx1 -j $((off+5)) -N13 "$1" | tr -d ' \n')
+    hx=${hx%%0a*}
+    t=$(printf '%b' "$(printf '%s' "$hx" | sed 's/../\\x&/g')" | sed 's/ *$//')
+    printf '%s' "$t"; return 0
+  done
+  return 1
+}
+detect_monitor_model(){
+  local e ven model
   for e in /sys/class/drm/*/edid; do
     [ -s "$e" ] || continue
-    EDID_MODEL=$(strings "$e" 2>/dev/null | grep -vE '^[A-Z0-9]{4,}$' | awk 'length>2 && length<20' | head -1 || true)
-    [ -n "$EDID_MODEL" ] && break
+    model=$(edid_text "$e" fc); [ -n "$model" ] || continue
+    ven=$(edid_vendor "$e")
+    printf '%s' "${ven:+$ven }$model"; return 0
   done
-  kv "MONITOR_MODEL" "${EDID_MODEL:-UNKNOWN}"; jline "MONITOR_MODEL" "${EDID_MODEL:-UNKNOWN}"
-else
-  kv "MONITOR_MODEL" "UNKNOWN"; jline "MONITOR_MODEL" "UNKNOWN"
-fi
+  if command -v ddcutil >/dev/null 2>&1; then
+    local d
+    d=$(timeout 15 ddcutil detect 2>/dev/null || true)
+    model=$(printf '%s\n' "$d" | awk -F': *' '/Model:/{print $2; exit}' | sed 's/ *$//')
+    ven=$(printf '%s\n' "$d" | awk -F': *' '/Mfg id:/{print $2; exit}' | awk '{print $1}')
+    [ -n "$model" ] && { printf '%s' "${ven:+$ven }$model"; return 0; }
+  fi
+  if [ -r "$HOME/.config/monitors.xml" ]; then
+    ven=$(grep -m1 '<vendor>' "$HOME/.config/monitors.xml" | sed -E 's/.*<vendor>([^<]*)<.*/\1/')
+    model=$(grep -m1 '<product>' "$HOME/.config/monitors.xml" | sed -E 's/.*<product>([^<]*)<.*/\1/')
+    [ -n "$model" ] && { printf '%s' "${ven:+$ven }$model"; return 0; }
+  fi
+  printf 'UNKNOWN'
+}
+MM=$(detect_monitor_model)
+kv "MONITOR_MODEL" "$MM"; jline "MONITOR_MODEL" "$MM"
 
 # ---------- 4. Сеть -------------------------------------------------------
 sec "NETWORK"
@@ -214,22 +291,26 @@ fi
 
 # C. Железо и периферия
 case "$AUDIO_CODEC" in
-  *Realtek*) verdict C-железо-периферия OK "AUDIO_CODEC=$AUDIO_CODEC (11 применим)" ;;
-  UNKNOWN)  verdict C-железо-периферия ADAPT "AUDIO_CODEC=UNKNOWN: 11 — только после ручной проверки /proc/asound" ;;
-  *) verdict C-железо-периферия ADAPT "AUDIO_CODEC=$AUDIO_CODEC: 11 описан для Realtek, пути hda-verb могут отличаться" ;;
+  *Realtek*) C_S=OK;    C_R="AUDIO_CODEC=$AUDIO_CODEC (11 применим)" ;;
+  UNKNOWN)   C_S=ADAPT; C_R="AUDIO_CODEC=UNKNOWN: 11 — только после ручной проверки /proc/asound" ;;
+  *)         C_S=ADAPT; C_R="AUDIO_CODEC=$AUDIO_CODEC: 11 описан для Realtek, пути hda-verb могут отличаться" ;;
 esac
+[ "$AUDIO_AUTOMUTE" = Enabled ] && C_R="$C_R; Auto-Mute=Enabled → 11 БОЛЕЗНЬ №5"
+[ "$AUDIO_AUTOMUTE" = Disabled ] && C_R="$C_R; Auto-Mute=off"
+verdict C-железо-периферия "$C_S" "$C_R"
 
 # D. Софт и инструменты
 [ "$NET" = yes ] && verdict D-софт-инструменты OK "NETWORK_ONLINE=$NET" \
                   || verdict D-софт-инструменты SKIP "NETWORK_ONLINE=$NET: 17 требует сети (npm-установка)"
 
 # E. Сеть и удалённый доступ
+E_EXTRA="RustDesk=$RUSTDESK, AUDIO_SINKS=$AUDIO_SINKS"
 if [ "$NET" != yes ]; then
-  verdict E-сеть-удалёнка SKIP "NETWORK_ONLINE=$NET"
+  verdict E-сеть-удалёнка SKIP "NETWORK_ONLINE=$NET; $E_EXTRA"
 elif [ "$SESSION_TYPE" != wayland ]; then
-  verdict E-сеть-удалёнка ADAPT "SESSION_TYPE=$SESSION_TYPE: 14 (хоткеи Wayland) — X11/other → другие механизмы"
+  verdict E-сеть-удалёнка ADAPT "SESSION_TYPE=$SESSION_TYPE: 14 (хоткеи Wayland) — X11/other → другие механизмы; $E_EXTRA"
 else
-  verdict E-сеть-удалёнка OK "SESSION_TYPE=$SESSION_TYPE (09 — только при наличии своего VPS; 19 — только с согласием владельца)"
+  verdict E-сеть-удалёнка OK "SESSION_TYPE=$SESSION_TYPE (09 — только при наличии своего VPS; 19 — только с согласием владельца); $E_EXTRA"
 fi
 
 # F. Игры и контент

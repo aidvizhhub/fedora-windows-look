@@ -1,6 +1,6 @@
 ---
 name: fedora-windows-look
-description: "Комплект для безопасного переезда на новый ПК + настройка Fedora/GNOME под Windows-лук и скорость. Использовать, когда нужно: ускорить Fedora/GNOME (медленная загрузка, какие службы отключить, кастомное ядро), тёплые цвета дисплея как на Windows, вид «как на винде» (тёмная тема, Segoe UI, курсоры, звуки, панель), терминалы как Windows Terminal, zram/своп/подкачка, форматирование и монтирование дисков, RustDesk для игр (чёрный экран, FPS), WireGuard VPN + торренты, OBS Studio запись, мёртвый задний аудиоразъём (hda-verb), AC Odyssey под Wine, хоткеи на Wayland (OBS/глобальные), видеоплееры VLC/Celluloid, RU/EN раскладки, opencode2, sudo без пароля. Всегда сначала preflight (scripts/preflight.sh), референсы — только примеры."
+description: "Комплект для безопасного переезда на новый ПК + настройка Fedora/GNOME под Windows-лук и скорость. Использовать, когда нужно: ускорить Fedora/GNOME (медленная загрузка, какие службы отключить, кастомное ядро), тёплые цвета дисплея как на Windows, вид «как на винде» (тёмная тема, Segoe UI, курсоры, звуки, панель), терминалы как Windows Terminal, zram/своп/подкачка, форматирование и монтирование дисков, RustDesk для игр (чёрный экран, FPS), RustDesk звук у партнёра (хост хватает не тот монитор), WireGuard VPN + торренты, OBS Studio запись, мёртвый задний аудиоразъём (hda-verb), передний и задний звук не одновременно (Realtek Auto-Mute), AC Odyssey под Wine, хоткеи на Wayland (OBS/глобальные), видеоплееры VLC/Celluloid, RU/EN раскладки, opencode2, sudo без пароля. Всегда сначала preflight (scripts/preflight.sh), референсы — только примеры."
 ---
 
 # Fedora → Windows Look & Performance — комплект «переезд на новый ПК»
@@ -52,7 +52,7 @@ bash scripts/apply-windows-look.sh --dry-run  # лук «как на винде�
 | B | Производительность | L1→L3 | 01, 05, 08 | VIRT=none; ядро: CPU_X86_64_V3=yes, SECURE_BOOT=off; RAM_MB |
 | C | Железо и периферия | L2→L3 | 06, 11, 15 | AUDIO_CODEC=realtek (11); диски — только с подтверждением |
 | D | Софт и инструменты | L1→L2 | 16, 17 | NETWORK_ONLINE=yes (17); DE=GNOME (16 GDM) |
-| E | Сеть и удалённый доступ | L2→L3 | 09, 14, 19 | NETWORK_ONLINE + свой VPS (09); SESSION_TYPE=wayland (14) |
+| E | Сеть и удалённый доступ | L2→L3 | 09, 14, 19, 20 | NETWORK_ONLINE + свой VPS (09); SESSION_TYPE=wayland (14); RustDesk + PipeWire с несколькими выходами (20) |
 | F | Игры и контент | L1→L3 | 07, 10, 12, 13 | GPU_VENDOR=nvidia (07, 10 NVENC); SESSION_TYPE=wayland (13) |
 | G | Аудит и статус | L0 (только чтение) | 00-preflight, audit.sh | — |
 
@@ -88,6 +88,8 @@ bash scripts/apply-windows-look.sh --dry-run  # лук «как на винде�
 | «настрой VPN», «wireguard», «торренты медленно», «сидбокс» | E · `references/09-vpn-torrents.md` |
 | «поставь OBS», «настрой запись видео», «файлы записи жирные» | F · `references/10-obs-studio.md` |
 | «задний зелёный молчит», «наушники в Line Out не играют» | C · `references/11-rear-audio-jack.md` |
+| «передний и задний звук не играют одновременно», «вставил в морду — задний замолк» | C · `references/11-rear-audio-jack.md` (БОЛЕЗНЬ №5: Auto-Mute) |
+| «партнёр в RustDesk не слышит звук», «у друга нет звука по удалёнке» | E · `references/20-rustdesk-audio.md` |
 | «игра не запускается на вине», «виснет на загрузке», «loader_section deadlock» | F · `references/12-ac-odyssey-wine.md` |
 | «хоткеи OBS не работают в игре», «запись не стартует из игры» | F · `references/13-obs-wayland-hotkeys.md` |
 | «назначить глобальные клавиши на софт», «хоткеи в фоне не работают» | E · `references/14-global-hotkeys-wayland.md` |
@@ -106,10 +108,11 @@ fedora-windows-look/
 ├── SKILL.md                    # этот файл: законы, категории, протокол
 ├── references/
 │   ├── 00-preflight.md         # как читать preflight-отчёт + таблица гейтов (НЕ ПРОПУСКАТЬ)
-│   └── 01..17,19-*.md          # проверенные инструкции; шапка <!-- meta --> = категория/риск/гейт/откат
+│   └── 01..17,19,20-*.md       # проверенные инструкции; шапка <!-- meta --> = категория/риск/гейт/откат
 ├── scripts/
 │   ├── preflight.sh            # read-only карта железа/ОС + вердикты (шаг 0 ЛЮБОГО сценария)
 │   ├── audit.sh                # спец-аудит ускорения (read-only)
+│   ├── diag-audio.sh           # read-only прибор по звуку (Auto-Mute / выходы / RustDesk: ref 11, 20)
 │   ├── apply-zram.sh           # идемпотентный, --dry-run
 │   └── apply-windows-look.sh   # перенос лука на другую Fedora: gsettings+ассеты+расширения, --dry-run
 └── README.md                   # обзор и быстрый старт

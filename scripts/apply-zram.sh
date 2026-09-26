@@ -4,7 +4,10 @@
 # Usage:
 #   bash scripts/apply-zram.sh [--dry-run] [zram_size_mb]
 #   ZRAM_SIZE_MB=8192 bash scripts/apply-zram.sh     # explicit size
-set -u
+set -euo pipefail
+
+usage(){ sed -n '2,6p' "$0"; }
+case "${1:-}" in -h|--help) usage; exit 0 ;; esac
 
 DRY=0
 [ "${1:-}" = "--dry-run" ] && { DRY=1; shift; }
@@ -24,7 +27,8 @@ say "RAM: ${MEM_MB}MB ($((MEM_MB / 1024))G) -> zram-size = ${ZRAM_MB}MB ($((ZRAM
 say "Real memory when fully used ≈ ${ZRAM_MB}MB / 3.4 (zstd) ≈ $((ZRAM_MB * 100 / 340))MB"
 
 # --- which mechanism does the distro use --------------------------------
-if systemctl list-unit-files 2>/dev/null | grep -q '^systemd-zram-setup@'; then
+UNITS=$(systemctl list-unit-files 2>/dev/null || true)
+if [[ "$UNITS" == *systemd-zram-setup@* ]]; then
   MODE=zram-generator
 elif [ -x /usr/bin/zramswap ] || [ -f /etc/default/zramswap ]; then
   MODE=zram-tools
@@ -48,7 +52,7 @@ EOF
   zram-tools)
     run sudo tee /etc/default/zramswap >/dev/null <<EOF
 ALGO=zstd
-PERCENT=50
+SIZE=$ZRAM_MB
 PRIORITY=100
 EOF
     say "Applies on zramswap service restart (systemctl restart zramswap)."
