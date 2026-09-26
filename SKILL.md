@@ -1,6 +1,6 @@
 ---
 name: fedora-windows-look
-description: "Комплект для безопасного переезда на новый ПК + настройка Fedora/GNOME под Windows-лук и скорость. Использовать, когда нужно: ускорить Fedora/GNOME (медленная загрузка, какие службы отключить, кастомное ядро), тёплые цвета дисплея как на Windows, вид «как на винде» (тёмная тема, Segoe UI, курсоры, звуки, панель), терминалы как Windows Terminal, zram/своп/подкачка, форматирование и монтирование дисков, RustDesk для игр (чёрный экран, FPS), RustDesk звук у партнёра (хост хватает не тот монитор), WireGuard VPN + торренты, OBS Studio запись, мёртвый задний аудиоразъём (hda-verb), передний и задний звук не одновременно (Realtek Auto-Mute), AC Odyssey под Wine, хоткеи на Wayland (OBS/глобальные), видеоплееры VLC/Celluloid, RU/EN раскладки, opencode2, sudo без пароля. Всегда сначала preflight (scripts/preflight.sh), референсы — только примеры."
+description: "Комплект для безопасного переезда на новый ПК + настройка Fedora/GNOME под Windows-лук и скорость. Использовать, когда нужно: ускорить Fedora/GNOME (медленная загрузка, какие службы отключить, кастомное ядро), тёплые цвета дисплея как на Windows, вид «как на винде» (тёмная тема, Segoe UI, курсоры, звуки, панель), терминалы как Windows Terminal, zram/своп/подкачка, форматирование и монтирование дисков, RustDesk для игр (чёрный экран, FPS), RustDesk звук у партнёра (хост хватает не тот монитор), WireGuard VPN + торренты, OBS Studio запись, мёртвый задний аудиоразъём (hda-verb), передний и задний звук не одновременно (Realtek Auto-Mute), AC Odyssey под Wine, хоткеи на Wayland (OBS/глобальные), видеоплееры VLC/Celluloid, RU/EN раскладки, opencode2, sudo без пароля, портирование на другой дистрибутив/DE. Всегда сначала preflight (scripts/preflight.sh), референсы — только примеры."
 ---
 
 # Fedora → Windows Look & Performance — комплект «переезд на новый ПК»
@@ -97,6 +97,7 @@ bash scripts/apply-windows-look.sh --dry-run  # лук «как на винде�
 | «добавь русскую раскладку», «переключение как в Windows», «Alt+Shift» | D · `references/16-keyboard-layouts.md` |
 | «поставь opencode», «opencode2 не работает», «AI-агент для кода» | D · `references/17-opencode2.md` |
 | «sudo без пароля», «sudo спрашивает пароль в скрипте» | E · `references/19-sudo-nopasswd.md` (L3, только с согласия!) |
+| «перенесу на Arch/KDE/Ubuntu», «заведётся ли на другом дистро» | G · `references/00-porting.md` |
 
 **Когда НЕ использовать:** серверы (там свои правила — не трогать
 NetworkManager-wait-online); настройка Firefox (отдельный скилл).
@@ -108,6 +109,7 @@ fedora-windows-look/
 ├── SKILL.md                    # этот файл: законы, категории, протокол
 ├── references/
 │   ├── 00-preflight.md         # как читать preflight-отчёт + таблица гейтов (НЕ ПРОПУСКАТЬ)
+│   ├── 00-porting.md           # что универсально, где швы (дистро/DE/сессия/GPU) — как портировать
 │   └── 01..17,19,20-*.md       # проверенные инструкции; шапка <!-- meta --> = категория/риск/гейт/откат
 ├── scripts/
 │   ├── preflight.sh            # read-only карта железа/ОС + вердикты (шаг 0 ЛЮБОГО сценария)

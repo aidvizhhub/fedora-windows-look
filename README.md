@@ -24,6 +24,7 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 |---|---|---|
 | Маршрут и законы | `SKILL.md` | категории A–G, уровни риска L1–L3, протокол шага, «референсы — только примеры» |
 | Preflight | `references/00-preflight.md` | как читать отчёт + таблица гейтов по категориям (главный мост «отчёт → действие») |
+| Портирование | `references/00-porting.md` | что универсально, а где швы (пакеты / DE / сессия / GPU) — как переложить репу на другой дистро или рабочий стол |
 | Ускорение | `references/01-speedup.md` | аудит → службы → загрузка → GNOME → ядро CachyOS + правила питания владельца (профиль performance, экран/сон/затемнение — OFF) |
 | Тёплые цвета | `references/02-warm-colors.md` | Night Light, VCGT-гамма, DDC монитора + макс Гц автоматом (monitors.xml, проверено 144 Гц) |
 | Windows-лук | `references/03-windows-look.md` | тёмная тема, Segoe UI, курсоры, звуки, расширения + установка Telegram (репозиторий Fedora) |
