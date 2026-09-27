@@ -1,6 +1,6 @@
 ---
 name: fedora-windows-look
-description: "Комплект для безопасного переезда на новый ПК + настройка Fedora/GNOME под Windows-лук и скорость. Использовать, когда нужно: ускорить Fedora/GNOME (медленная загрузка, какие службы отключить, кастомное ядро), тёплые цвета дисплея как на Windows, вид «как на винде» (тёмная тема, Segoe UI, курсоры, звуки, панель), терминалы как Windows Terminal, zram/своп/подкачка, форматирование и монтирование дисков, RustDesk для игр (чёрный экран, FPS), RustDesk звук у партнёра (хост хватает не тот монитор), WireGuard VPN + торренты, OBS Studio запись, мёртвый задний аудиоразъём (hda-verb), передний и задний звук не одновременно (Realtek Auto-Mute), AC Odyssey под Wine, хоткеи на Wayland (OBS/глобальные), видеоплееры VLC/Celluloid, RU/EN раскладки, opencode2, sudo без пароля, портирование на другой дистрибутив/DE. Всегда сначала preflight (scripts/preflight.sh), референсы — только примеры."
+description: "Комплект для безопасного переезда на новый ПК + настройка Fedora/GNOME под Windows-лук и скорость. Использовать, когда нужно: ускорить Fedora/GNOME (медленная загрузка, какие службы отключить, кастомное ядро), тёплые цвета дисплея как на Windows, вид «как на винде» (тёмная тема, Segoe UI, курсоры, звуки, панель), терминалы как Windows Terminal, zram/своп/подкачка, форматирование и монтирование дисков, RustDesk для игр (чёрный экран, FPS), RustDesk звук у партнёра (хост хватает не тот монитор), WireGuard VPN + торренты, OBS Studio запись, мёртвый задний аудиоразъём (hda-verb), передний и задний звук не одновременно (Realtek Auto-Mute), AC Odyssey под Wine, хоткеи на Wayland (OBS/глобальные), видеоплееры VLC/Celluloid, RU/EN раскладки, opencode2, sudo без пароля, тормоза GTK/WebKit-окон на NVIDIA+Wayland (GPU отключён, залипший процесс после обновления), портирование на другой дистрибутив/DE. Всегда сначала preflight (scripts/preflight.sh), референсы — только примеры."
 ---
 
 # Fedora → Windows Look & Performance — комплект «переезд на новый ПК»
@@ -49,7 +49,7 @@ bash scripts/apply-windows-look.sh --dry-run  # лук «как на винде�
 | # | Категория | Риск | Референсы | Главные гейты (из preflight) |
 |---|---|---|---|---|
 | A | Внешний вид | L1→L2 | 02, 03, 04 (+01 шаг 3) | DE=GNOME, SHELL_VER=45+, GPU/монитор для DDC |
-| B | Производительность | L1→L3 | 01, 05, 08, 21 | VIRT=none; ядро: CPU_X86_64_V3=yes, SECURE_BOOT=off; RAM_MB; 21 — DE=GNOME (индексатор) |
+| B | Производительность | L1→L3 | 01, 05, 08, 21, 23 | VIRT=none; ядро: CPU_X86_64_V3=yes, SECURE_BOOT=off; RAM_MB; 21 — DE=GNOME (индексатор); 23 — GPU_VENDOR=nvidia + SESSION_TYPE=wayland |
 | C | Железо и периферия | L2→L3 | 06, 11, 15 | AUDIO_CODEC=realtek (11); диски — только с подтверждением |
 | D | Софт и инструменты | L1→L2 | 16, 17 | NETWORK_ONLINE=yes (17); DE=GNOME (16 GDM) |
 | E | Сеть и удалённый доступ | L2→L3 | 09, 14, 19, 20, 22 | NETWORK_ONLINE + свой VPS (09); SESSION_TYPE=wayland (14); RustDesk + PipeWire с несколькими выходами (20); RustDesk Wayland-захват (22) |
@@ -79,6 +79,8 @@ bash scripts/apply-windows-look.sh --dry-run  # лук «как на винде�
 |---|---|
 | «тормозит», «медленная загрузка», «какие службы отключить», «стоит ли кастомное ядро» | B · `references/01-speedup.md` |
 | «куда уходит память/диск», «что ещё жрёт систему», «что за localsearch/tracker», «индексатор грызёт диск» | B/G · `references/21-background-services.md` |
+| «лагает окно приложения (electron/webkit/gtk), а в браузере — нет», «тугой скролл в нативной программе» | B · `references/23-webview-nvidia-wayland-lag.md` |
+| «обновил приложение, а оно тормозит / крутится старое», «обновил — всё равно лагает» | B · `references/23-webview-nvidia-wayland-lag.md` |
 | «холодные цвета», «блекло», «настроить гамму», «тёплый как на винде» | A · `references/02-warm-colors.md` |
 | «сделай как на винде»: тёмная тема, Segoe UI, курсоры, звуки, панель | A · `references/03-windows-look.md` |
 | «терминал как Windows Terminal», konsole тёмная, Cascadia Mono | A · `references/04-terminals.md` |
@@ -112,7 +114,7 @@ fedora-windows-look/
 ├── references/
 │   ├── 00-preflight.md         # как читать preflight-отчёт + таблица гейтов (НЕ ПРОПУСКАТЬ)
 │   ├── 00-porting.md           # что универсально, где швы (дистро/DE/сессия/GPU) — как портировать
-│   └── 01..17,19..22-*.md       # проверенные инструкции; шапка <!-- meta --> = категория/риск/гейт/откат
+│   └── 01..17,19..23-*.md       # проверенные инструкции; шапка <!-- meta --> = категория/риск/гейт/откат
 ├── scripts/
 │   ├── preflight.sh            # read-only карта железа/ОС + вердикты (шаг 0 ЛЮБОГО сценария)
 │   ├── audit.sh                # спец-аудит ускорения (read-only)

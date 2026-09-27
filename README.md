@@ -35,6 +35,7 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 | RustDesk + игры | `references/07-rustdesk-games.md` | удалёнка, гейминг-тюнинг |
 | RustDesk: звук у партнёра | `references/20-rustdesk-audio.md` | партнёр не слышит звук: хост хватает не тот монитор — опции живут в `RustDesk2.toml` (+ root-синк), выбор по описанию источника |
 | RustDesk: ошибка «нужна поздняя версия ОС» | `references/22-rustdesk-wayland-portal-error.md` | Wayland-захват не поднялся (PipeWire/xdg-desktop-portal): сообщение врёт, причина — гонка служб на буте/отклонённый диалог — лечится рестартом портала, а не сменой ОС |
+| GTK/WebKit-окна лагают | `references/23-webview-nvidia-wayland-lag.md` | окно приложения (webkit/gtk) тормозит, а в браузере плавно: на NVIDIA+Wayland GPU выключен (`Error 71`) → `__NV_DISABLE_EXPLICIT_SYNC=1`; плюс грабля «обновил, а лагает» — залипший процесс с `(deleted)` в `/proc/PID/exe` |
 | Своп-файл | `references/08-swapfile-backup.md` | дисковый своп за zram, защита от OOM + правило размера по ОЗУ (8G→32G, 16G→16G) |
 | VPN + торренты | `references/09-vpn-torrents.md` | свой WireGuard с нуля, клиент Fedora, MTU/BBR, проброс портов, сидбокс |
 | Аудио: задний разъём | `references/11-rear-audio-jack.md` | «мёртвый» задний зелёный: пин кодека выключен, hda-verb + автозапуск; **БОЛЕЗНЬ №5** — перед+зад не играют одновременно (Realtek **Auto-Mute** → Disabled) |
