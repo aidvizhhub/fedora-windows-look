@@ -37,8 +37,9 @@ GPU-ускорения** — например `WEBKIT_DISABLE_DMABUF_RENDERER=1`
 рисуется на CPU → те самые лаги. Компромисс «чтобы не крашилось — рисуем
 процессором».
 
-Апстрим не чинён: WebKit **bug 280210** — по авто-отключению ускорения именно
-для NVIDIA закрыт как WONTFIX. То есть «само не починится».
+Апстрим не чинён: основной баг **280210** (тот самый `Error 71` на NVIDIA+Wayland)
+— **открыт (NEW)**; а отдельный баг **262607** (авто-отключение DMABuf-ускорения
+именно для NVIDIA) закрыт **WONTFIX**. То есть «само не починится».
 
 ### Причина №2 — залипший процесс после обновления (вторая, отдельная грабля)
 
@@ -109,8 +110,10 @@ export __NV_DISABLE_EXPLICIT_SYNC=1
 
 **Флаг процессный, не системный.** Он влияет только на это приложение — игры и
 систему не задевает (в отличие от прописывания в `/etc/environment`). Это важно:
-начиная с драйвера **575** этой же переменной глушатся ещё Vulkan/GLX-синк-пути,
-поэтому держим её **только на процесс**, а не на всю сессию.
+начиная с драйвера **575.51.02 / 575.57.08** этой же переменной глушатся ещё
+Vulkan/GLX-синк-пути (это прямо в changelog NVIDIA: переменную «extended… to also
+apply to GLX and Vulkan applications»), поэтому держим её **только на процесс**,
+а не на всю сессию.
 
 ### Лончеры не должны форсить DMABUF=1
 
@@ -140,11 +143,13 @@ readlink /proc/$pid/exe                      # без "(deleted)" → крути
   `readlink /proc/PID/exe` показывает `(deleted)`, и старый процесс продолжает
   тормозить в CPU-режиме. Полностью закрой и запусти заново; «перезагрузить
   страницу» не спасает.
-- **Драйвер 575+:** `__NV_DISABLE_EXPLICIT_SYNC=1` гасит ещё и Vulkan/GLX —
-  поэтому **только на процесс**, не глобально в `/etc/environment`.
-- **Не совмещать флаги.** `__NV_DISABLE_EXPLICIT_SYNC=1` вместе с
-  `WEBKIT_DISABLE_DMABUF_RENDERER=1` → снова краш. Либо одно (GPU), либо другое
-  (CPU), но не оба.
+- **Драйвер 575.57.08+:** `__NV_DISABLE_EXPLICIT_SYNC=1` гасит ещё и Vulkan/GLX
+  (changelog NVIDIA) — поэтому **только на процесс**, не глобально в
+  `/etc/environment`.
+- **Не совмещать флаги.** Совмещать не нужно: `WEBKIT_DISABLE_DMABUF_RENDERER=1`
+  сам выключает GPU, `__NV_*` в этом случае ни к чему (и по репортам такая пара
+  конфликтует — без гарантий). Ставим **что-то одно**: либо `__NV_*` (GPU), либо
+  `WEBKIT_*` (CPU), но не оба.
 - **X11/XWayland + NVIDIA:** GPU там всё равно не заводится — сыплет
   `Failed to create GBM buffer`; **разумно оставить CPU**, но без краша.
   `Error 71` на X11 не бывает — он только Wayland-шный.
@@ -155,6 +160,10 @@ readlink /proc/$pid/exe                      # без "(deleted)" → крути
 - Вид «как на винде» и общий лук системы: `references/03-windows-look.md`.
 - Общий аудит «что жрёт систему / почему тормозит»: `references/01-speedup.md`,
   `references/21-background-services.md`.
-- Первоисточники: WebKit bug 280210 — `bugs.webkit.org/show_bug.cgi?id=280210`;
+- Первоисточники: WebKit bug 280210 (NEW) —
+  `bugs.webkit.org/show_bug.cgi?id=280210`; WebKit bug 262607 (WONTFIX) —
+  `bugs.webkit.org/show_bug.cgi?id=262607`;
   Linux-графика Tauri — `v2.tauri.app/develop/debug/linux-graphics/`;
-  NVIDIA-квирк WebKitGTK — `docs.rs/webkit2gtk-nvidia-quirk`.
+  NVIDIA-квирк WebKitGTK — `docs.rs/webkit2gtk-nvidia-quirk`;
+  NVIDIA 575 changelog (`__NV_DISABLE_EXPLICIT_SYNC` → GLX/Vulkan) —
+  `forums.developer.nvidia.com/t/575-release-feedback-discussion/330513`.
