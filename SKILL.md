@@ -49,12 +49,12 @@ bash scripts/apply-windows-look.sh --dry-run  # лук «как на винде�
 | # | Категория | Риск | Референсы | Главные гейты (из preflight) |
 |---|---|---|---|---|
 | A | Внешний вид | L1→L2 | 02, 03, 04 (+01 шаг 3) | DE=GNOME, SHELL_VER=45+, GPU/монитор для DDC |
-| B | Производительность | L1→L3 | 01, 05, 08 | VIRT=none; ядро: CPU_X86_64_V3=yes, SECURE_BOOT=off; RAM_MB |
+| B | Производительность | L1→L3 | 01, 05, 08, 21 | VIRT=none; ядро: CPU_X86_64_V3=yes, SECURE_BOOT=off; RAM_MB; 21 — DE=GNOME (индексатор) |
 | C | Железо и периферия | L2→L3 | 06, 11, 15 | AUDIO_CODEC=realtek (11); диски — только с подтверждением |
 | D | Софт и инструменты | L1→L2 | 16, 17 | NETWORK_ONLINE=yes (17); DE=GNOME (16 GDM) |
 | E | Сеть и удалённый доступ | L2→L3 | 09, 14, 19, 20 | NETWORK_ONLINE + свой VPS (09); SESSION_TYPE=wayland (14); RustDesk + PipeWire с несколькими выходами (20) |
 | F | Игры и контент | L1→L3 | 07, 10, 12, 13 | GPU_VENDOR=nvidia (07, 10 NVENC); SESSION_TYPE=wayland (13) |
-| G | Аудит и статус | L0 (только чтение) | 00-preflight, audit.sh | — |
+| G | Аудит и статус | L0 (только чтение) | 00-preflight, audit.sh, 21 (Part 0) | — |
 
 Полная таблица гейтов (OK/ADAPT/SKIP по каждому ключу): `references/00-preflight.md`.
 Числа в примерах референсов — НЕ переносить слепо (zram, swapfile, пин кодека, FPS, монитор).
@@ -78,6 +78,7 @@ bash scripts/apply-windows-look.sh --dry-run  # лук «как на винде�
 | Запрос пользователя | Куда |
 |---|---|
 | «тормозит», «медленная загрузка», «какие службы отключить», «стоит ли кастомное ядро» | B · `references/01-speedup.md` |
+| «куда уходит память/диск», «что ещё жрёт систему», «что за localsearch/tracker», «индексатор грызёт диск» | B/G · `references/21-background-services.md` |
 | «холодные цвета», «блекло», «настроить гамму», «тёплый как на винде» | A · `references/02-warm-colors.md` |
 | «сделай как на винде»: тёмная тема, Segoe UI, курсоры, звуки, панель | A · `references/03-windows-look.md` |
 | «терминал как Windows Terminal», konsole тёмная, Cascadia Mono | A · `references/04-terminals.md` |
@@ -110,7 +111,7 @@ fedora-windows-look/
 ├── references/
 │   ├── 00-preflight.md         # как читать preflight-отчёт + таблица гейтов (НЕ ПРОПУСКАТЬ)
 │   ├── 00-porting.md           # что универсально, где швы (дистро/DE/сессия/GPU) — как портировать
-│   └── 01..17,19,20-*.md       # проверенные инструкции; шапка <!-- meta --> = категория/риск/гейт/откат
+│   └── 01..17,19..21-*.md       # проверенные инструкции; шапка <!-- meta --> = категория/риск/гейт/откат
 ├── scripts/
 │   ├── preflight.sh            # read-only карта железа/ОС + вердикты (шаг 0 ЛЮБОГО сценария)
 │   ├── audit.sh                # спец-аудит ускорения (read-only)
