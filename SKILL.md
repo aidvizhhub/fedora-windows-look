@@ -52,7 +52,7 @@ bash scripts/apply-windows-look.sh --dry-run  # лук «как на винде�
 | B | Производительность | L1→L3 | 01, 05, 08, 21 | VIRT=none; ядро: CPU_X86_64_V3=yes, SECURE_BOOT=off; RAM_MB; 21 — DE=GNOME (индексатор) |
 | C | Железо и периферия | L2→L3 | 06, 11, 15 | AUDIO_CODEC=realtek (11); диски — только с подтверждением |
 | D | Софт и инструменты | L1→L2 | 16, 17 | NETWORK_ONLINE=yes (17); DE=GNOME (16 GDM) |
-| E | Сеть и удалённый доступ | L2→L3 | 09, 14, 19, 20 | NETWORK_ONLINE + свой VPS (09); SESSION_TYPE=wayland (14); RustDesk + PipeWire с несколькими выходами (20) |
+| E | Сеть и удалённый доступ | L2→L3 | 09, 14, 19, 20, 22 | NETWORK_ONLINE + свой VPS (09); SESSION_TYPE=wayland (14); RustDesk + PipeWire с несколькими выходами (20); RustDesk Wayland-захват (22) |
 | F | Игры и контент | L1→L3 | 07, 10, 12, 13 | GPU_VENDOR=nvidia (07, 10 NVENC); SESSION_TYPE=wayland (13) |
 | G | Аудит и статус | L0 (только чтение) | 00-preflight, audit.sh, 21 (Part 0) | — |
 
@@ -91,6 +91,7 @@ bash scripts/apply-windows-look.sh --dry-run  # лук «как на винде�
 | «задний зелёный молчит», «наушники в Line Out не играют» | C · `references/11-rear-audio-jack.md` |
 | «передний и задний звук не играют одновременно», «вставил в морду — задний замолк» | C · `references/11-rear-audio-jack.md` (БОЛЕЗНЬ №5: Auto-Mute) |
 | «партнёр в RustDesk не слышит звук», «у друга нет звука по удалёнке» | E · `references/20-rustdesk-audio.md` |
+| «RustDesk пишет *требуется более поздняя версия дистрибутива* / смените ОС», «Wayland-захват не работает» | E · `references/22-rustdesk-wayland-portal-error.md` |
 | «игра не запускается на вине», «виснет на загрузке», «loader_section deadlock» | F · `references/12-ac-odyssey-wine.md` |
 | «хоткеи OBS не работают в игре», «запись не стартует из игры» | F · `references/13-obs-wayland-hotkeys.md` |
 | «назначить глобальные клавиши на софт», «хоткеи в фоне не работают» | E · `references/14-global-hotkeys-wayland.md` |
@@ -111,7 +112,7 @@ fedora-windows-look/
 ├── references/
 │   ├── 00-preflight.md         # как читать preflight-отчёт + таблица гейтов (НЕ ПРОПУСКАТЬ)
 │   ├── 00-porting.md           # что универсально, где швы (дистро/DE/сессия/GPU) — как портировать
-│   └── 01..17,19..21-*.md       # проверенные инструкции; шапка <!-- meta --> = категория/риск/гейт/откат
+│   └── 01..17,19..22-*.md       # проверенные инструкции; шапка <!-- meta --> = категория/риск/гейт/откат
 ├── scripts/
 │   ├── preflight.sh            # read-only карта железа/ОС + вердикты (шаг 0 ЛЮБОГО сценария)
 │   ├── audit.sh                # спец-аудит ускорения (read-only)
