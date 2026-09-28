@@ -62,7 +62,7 @@ mullvad status -v
 curl -s https://am.i.mullvad.net/json
 # mullvad_exit_ip: true, country = страна выхода (утечки нет)
 
-ip route get 1.1.1.1
+ip route get <ПУБЛИЧНЫЙ_IP>
 # маршрут должен идти через wg0-mullvad, а не через физический интерфейс
 ```
 
