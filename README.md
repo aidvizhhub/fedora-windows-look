@@ -40,7 +40,6 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 | VPN + торренты | `references/09-vpn-torrents.md` | свой WireGuard с нуля, клиент Fedora, MTU/BBR, проброс портов, сидбокс |
 | Mullvad: безопасность | `references/24-mullvad-vpn-hardening.md` | VPN подключён, но «дырявый»: закрыть kill switch (lockdown), auto-connect, DAITA, DNS-фильтр (ads/trackers/malware), multi-hop; грабля CLI `dns set default` (флаги без значения); **раздел «Скорость»**: DAITA режет одиночный поток ~×2, multi-hop почти бесплатен, но добавляет латентность — замеры A/B и откат; верифа `status -v` + `am.i.mullvad.net` |
 | WebRTC: утечка локального IP | `references/25-webrtc-ip-leak-firefox.md` | сайт читает твою локалку через WebRTC-кандидатов; закрыть в Firefox через `user.js` (`ice.no_host` и др.) — звонки живы; жёсткий выключатель и Mullvad Browser как «по-взрослому»; Chromium — политикой `WebRtcIPHandlingPolicy`; тест на `browserleaks.com/webrtc` |
-| Изоляция агента (сторонний API) | `references/26-nesnakomyy-ai-api-izolyaciya.md` | серый AI-релей видит все промпты и файлы агента и может подменить ответ: запуск opencode в rootless-podman — видна только папка проекта, домашняя/память/.env скрыты, своя сеть (loopback+LAN отрезаны, интернет через VPN), ключи из env-файла; образ = семья хоста (glibc); проверено живьём |
 | Аудио: задний разъём | `references/11-rear-audio-jack.md` | «мёртвый» задний зелёный: пин кодека выключен, hda-verb + автозапуск; **БОЛЕЗНЬ №5** — перед+зад не играют одновременно (Realtek **Auto-Mute** → Disabled) |
 | AC Odyssey + Wine | `references/12-ac-odyssey-wine.md` | игра виснет на загрузке: loader_section deadlock → WINEDEBUG=+loaddll, DXVK рядом с exe, без dxvk.conf |
 | OBS хоткеи (Wayland) | `references/13-obs-wayland-hotkeys.md` | нативные хоткеи OBS не работают в фоне → плагин Wayland Hotkeys + клавиши в dconf системы |
@@ -49,7 +48,7 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 | Раскладки | `references/16-keyboard-layouts.md` | русский + английский: установка RU/EN, переключение как в Windows (Alt+Shift), консоль + экран входа |
 | OpenCode 2 | `references/17-opencode2.md` | AI-кодинг-агент (beta): установка `opencode2` без sudo, первый запуск, план/билд, грабли беты |
 | Sudo без пароля | `references/19-sudo-nopasswd.md` | passwordless sudo: ПРАВИЛО «только с согласия владельца», настройка через sudoers.d, проверка visudo, откат, узкая альтернатива |
-| Скрипты | `scripts/` | `preflight.sh` (карта железа/ОС + вердикты, read-only), `audit.sh` (read-only аудит ускорения), `diag-audio.sh` (read-only прибор по звуку: Auto-Mute / выходы / на чём залип RustDesk — для ref 11 и 20), `apply-zram.sh` (идемпотентный, `--dry-run`), `apply-windows-look.sh` (перенос вида «как на ПК»: gsettings + ассеты + расширения), `isolated-agent.sh` (запуск агента в контейнере: видит только папку проекта, ключи через env-файл — ref 26) |
+| Скрипты | `scripts/` | `preflight.sh` (карта железа/ОС + вердикты, read-only), `audit.sh` (read-only аудит ускорения), `diag-audio.sh` (read-only прибор по звуку: Auto-Mute / выходы / на чём залип RustDesk — для ref 11 и 20), `apply-zram.sh` (идемпотентный, `--dry-run`), `apply-windows-look.sh` (перенос вида «как на ПК»: gsettings + ассеты + расширения) |
 
 ## Быстрый старт (новый ПК)
 
