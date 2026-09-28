@@ -47,6 +47,7 @@ mullvad auto-connect set on       # поднимать VPN при старте �
 mullvad tunnel set daita on       # DAITA — защита от анализа трафика
 mullvad dns set default --block-ads --block-trackers --block-malware
 mullvad relay set multihop on     # лишний хоп (вход → выход), опционально
+mullvad tunnel set rotation-interval 24   # смена WireGuard-ключа каждые 24 ч (дефолт 720 ч / 30 дней)
 ```
 
 **Грабля (проверено):** у `mullvad dns set default` флаги задаются **без значения** —
@@ -68,7 +69,20 @@ ip route get <ПУБЛИЧНЫЙ_IP>
 
 - `mullvad relay get` → `Multihop state: enabled`.
 - Локальные настройки: `lockdown-mode get` → `on`, `auto-connect get` → `on`,
-  `tunnel get` → `DAITA: true`, `dns get` → Block ads/trackers/malware `true`.
+  `tunnel get` → `DAITA: true`, `Rotation interval: 24 hours`,
+  `dns get` → Block ads/trackers/malware `true`.
+
+## Ротация ключа (зачем)
+
+- **Ключ = отпечаток.** Mullvad выводит выходной IP **детерминированно из
+  WireGuard-ключа** → смена стран/серверов **не рвёт связку**, пока ключ один
+  (независимое исследование tmctmt, 2026: 3650 ключей → лишь **284 уникальных
+  IP-набора**). Поэтому ключ **ротируют**.
+- **Дефолт 30 дней (720 ч)** → ставим **24 ч**:
+  `mullvad tunnel set rotation-interval 24`.
+- Проверка: `mullvad tunnel get` → `Rotation interval: 24 hours`.
+- Мгновенно сменить ключ: `mullvad tunnel set rotate-key` (заработает до ~2 мин).
+- Откат к дефолту: `mullvad tunnel set rotation-interval 720`.
 
 ## Нюансы (проверено)
 
@@ -93,6 +107,7 @@ mullvad auto-connect set off
 mullvad tunnel set daita off
 mullvad relay set multihop off
 mullvad dns set default
+mullvad tunnel set rotation-interval 720   # вернуть дефолт 30 дней
 ```
 
 Каждая команда обратима и не требует sudo (демон работает под своим пользователем).
@@ -100,5 +115,7 @@ mullvad dns set default
 ## References
 
 - CLI-протокол: `mullvad help`, `mullvad tunnel set --help`, `mullvad dns set default --help`
+- Ротация ключа (офиц.): https://mullvad.net/en/help/cli-command-wg — «default is 720 hours (30 days)»
+- Зачем ротация: https://tmctmt.com/posts/mullvad-exit-ips-as-a-fingerprinting-vector/ (ключ = отпечаток; 3650 ключей → 284 IP-набора)
 - Mullvad (офиц.): DAITA, lockdown mode, multi-hop, DNS content blocking
 - Соседний референс: `09-vpn-torrents.md` (свой WireGuard-сервер с нуля)
