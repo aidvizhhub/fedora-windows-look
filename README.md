@@ -38,6 +38,7 @@ Fedora 44); раздел zram — любой systemd-Linux (Fedora/Arch/CachyOS/
 | GTK/WebKit-окна лагают | `references/23-webview-nvidia-wayland-lag.md` | окно приложения (webkit/gtk) тормозит, а в браузере плавно: на NVIDIA+Wayland GPU выключен (`Error 71`) → `__NV_DISABLE_EXPLICIT_SYNC=1`; плюс грабля «обновил, а лагает» — залипший процесс с `(deleted)` в `/proc/PID/exe` |
 | Своп-файл | `references/08-swapfile-backup.md` | дисковый своп за zram, защита от OOM + правило размера по ОЗУ (8G→32G, 16G→16G) |
 | VPN + торренты | `references/09-vpn-torrents.md` | свой WireGuard с нуля, клиент Fedora, MTU/BBR, проброс портов, сидбокс |
+| Mullvad: безопасность | `references/24-mullvad-vpn-hardening.md` | VPN подключён, но «дырявый»: закрыть kill switch (lockdown), auto-connect, DAITA, DNS-фильтр (ads/trackers/malware), multi-hop; грабля CLI `dns set default` (флаги без значения); верифа `status -v` + `am.i.mullvad.net` |
 | Аудио: задний разъём | `references/11-rear-audio-jack.md` | «мёртвый» задний зелёный: пин кодека выключен, hda-verb + автозапуск; **БОЛЕЗНЬ №5** — перед+зад не играют одновременно (Realtek **Auto-Mute** → Disabled) |
 | AC Odyssey + Wine | `references/12-ac-odyssey-wine.md` | игра виснет на загрузке: loader_section deadlock → WINEDEBUG=+loaddll, DXVK рядом с exe, без dxvk.conf |
 | OBS хоткеи (Wayland) | `references/13-obs-wayland-hotkeys.md` | нативные хоткеи OBS не работают в фоне → плагин Wayland Hotkeys + клавиши в dconf системы |
