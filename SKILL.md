@@ -1,6 +1,6 @@
 ---
 name: fedora-windows-look
-description: "Комплект для безопасного переезда на новый ПК + настройка Fedora/GNOME под Windows-лук и скорость. Использовать, когда нужно: ускорить Fedora/GNOME (медленная загрузка, какие службы отключить, кастомное ядро), тёплые цвета дисплея как на Windows, вид «как на винде» (тёмная тема, Segoe UI, курсоры, звуки, панель), терминалы как Windows Terminal, zram/своп/подкачка, форматирование и монтирование дисков, RustDesk для игр (чёрный экран, FPS), RustDesk звук у партнёра (хост хватает не тот монитор), WireGuard VPN + торренты, Mullvad VPN (kill switch/DAITA), OBS Studio запись, мёртвый задний аудиоразъём (hda-verb), передний и задний звук не одновременно (Realtek Auto-Mute), AC Odyssey под Wine, хоткеи на Wayland (OBS/глобальные), видеоплееры VLC/Celluloid, RU/EN раскладки, opencode2, sudo без пароля, тормоза GTK/WebKit-окон на NVIDIA+Wayland (GPU отключён, залипший процесс после обновления), портирование на другой дистрибутив/DE. Всегда сначала preflight (scripts/preflight.sh), референсы — только примеры."
+description: "Комплект для безопасного переезда на новый ПК + настройка Fedora/GNOME под Windows-лук и скорость. Использовать, когда нужно: ускорить Fedora/GNOME (медленная загрузка, какие службы отключить, кастомное ядро), тёплые цвета дисплея как на Windows, вид «как на винде» (тёмная тема, Segoe UI, курсоры, звуки, панель), терминалы как Windows Terminal, zram/своп/подкачка, форматирование и монтирование дисков, RustDesk для игр (чёрный экран, FPS), RustDesk звук у партнёра (хост хватает не тот монитор), WireGuard VPN + торренты, Mullvad VPN (kill switch/DAITA, скорость DAITA/multi-hop), утечка локального IP через WebRTC в Firefox, OBS Studio запись, мёртвый задний аудиоразъём (hda-verb), передний и задний звук не одновременно (Realtek Auto-Mute), AC Odyssey под Wine, хоткеи на Wayland (OBS/глобальные), видеоплееры VLC/Celluloid, RU/EN раскладки, opencode2, sudo без пароля, тормоза GTK/WebKit-окон на NVIDIA+Wayland (GPU отключён, залипший процесс после обновления), портирование на другой дистрибутив/DE. Всегда сначала preflight (scripts/preflight.sh), референсы — только примеры."
 ---
 
 # Fedora → Windows Look & Performance — комплект «переезд на новый ПК»
@@ -52,7 +52,7 @@ bash scripts/apply-windows-look.sh --dry-run  # лук «как на винде�
 | B | Производительность | L1→L3 | 01, 05, 08, 21, 23 | VIRT=none; ядро: CPU_X86_64_V3=yes, SECURE_BOOT=off; RAM_MB; 21 — DE=GNOME (индексатор); 23 — GPU_VENDOR=nvidia + SESSION_TYPE=wayland |
 | C | Железо и периферия | L2→L3 | 06, 11, 15 | AUDIO_CODEC=realtek (11); диски — только с подтверждением |
 | D | Софт и инструменты | L1→L2 | 16, 17 | NETWORK_ONLINE=yes (17); DE=GNOME (16 GDM) |
-| E | Сеть и удалённый доступ | L2→L3 | 09, 14, 19, 20, 22, 24 | NETWORK_ONLINE + свой VPS (09); SESSION_TYPE=wayland (14); RustDesk + PipeWire с несколькими выходами (20); RustDesk Wayland-захват (22); NETWORK_ONLINE + `mullvad-vpn` (24) |
+| E | Сеть и удалённый доступ | L2→L3 | 09, 14, 19, 20, 22, 24, 25 | NETWORK_ONLINE + свой VPS (09); SESSION_TYPE=wayland (14); RustDesk + PipeWire с несколькими выходами (20); RustDesk Wayland-захват (22); NETWORK_ONLINE + `mullvad-vpn` (24); установлен Firefox + профили в `~/.mozilla/firefox` (25) |
 | F | Игры и контент | L1→L3 | 07, 10, 12, 13 | GPU_VENDOR=nvidia (07, 10 NVENC); SESSION_TYPE=wayland (13) |
 | G | Аудит и статус | L0 (только чтение) | 00-preflight, audit.sh, 21 (Part 0) | — |
 
@@ -90,6 +90,8 @@ bash scripts/apply-windows-look.sh --dry-run  # лук «как на винде�
 | «линукс умирает от нехватки ОЗУ», «файл подкачки», «чтобы не падал» | B · `references/08-swapfile-backup.md` |
 | «настрой VPN», «wireguard», «торренты медленно», «сидбокс» | E · `references/09-vpn-torrents.md` |
 | «Mullvad», «kill switch», «VPN утечёт при обрыве», «настрой VPN на безопасность» | E · `references/24-mullvad-vpn-hardening.md` |
+| «VPN тормозит», «DAITA режет скорость», «какой хоп выбрать», «multi-hop лагает» | E · `references/24-mullvad-vpn-hardening.md` (раздел «Скорость») |
+| «сайт видит мой локальный IP», «WebRTC утечка», «выключить WebRTC в Firefox» | E · `references/25-webrtc-ip-leak-firefox.md` |
 | «поставь OBS», «настрой запись видео», «файлы записи жирные» | F · `references/10-obs-studio.md` |
 | «задний зелёный молчит», «наушники в Line Out не играют» | C · `references/11-rear-audio-jack.md` |
 | «передний и задний звук не играют одновременно», «вставил в морду — задний замолк» | C · `references/11-rear-audio-jack.md` (БОЛЕЗНЬ №5: Auto-Mute) |
@@ -105,7 +107,8 @@ bash scripts/apply-windows-look.sh --dry-run  # лук «как на винде�
 | «перенесу на Arch/KDE/Ubuntu», «заведётся ли на другом дистро» | G · `references/00-porting.md` |
 
 **Когда НЕ использовать:** серверы (там свои правила — не трогать
-NetworkManager-wait-online); настройка Firefox (отдельный скилл).
+NetworkManager-wait-online); общая настройка Firefox (отдельный скилл — кроме сетевой
+утечки WebRTC, это `references/25-webrtc-ip-leak-firefox.md`).
 
 ## Структура
 
@@ -115,7 +118,7 @@ fedora-windows-look/
 ├── references/
 │   ├── 00-preflight.md         # как читать preflight-отчёт + таблица гейтов (НЕ ПРОПУСКАТЬ)
 │   ├── 00-porting.md           # что универсально, где швы (дистро/DE/сессия/GPU) — как портировать
-│   └── 01..17,19..24-*.md       # проверенные инструкции; шапка <!-- meta --> = категория/риск/гейт/откат
+│   └── 01..17,19..25-*.md       # проверенные инструкции; шапка <!-- meta --> = категория/риск/гейт/откат
 ├── scripts/
 │   ├── preflight.sh            # read-only карта железа/ОС + вердикты (шаг 0 ЛЮБОГО сценария)
 │   ├── audit.sh                # спец-аудит ускорения (read-only)
